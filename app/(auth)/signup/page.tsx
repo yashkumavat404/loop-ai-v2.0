@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
@@ -10,30 +10,80 @@ import {
   Sparkles,
   UserRound,
 } from "lucide-react";
+import { signIn } from "next-auth/react";
 
 export default function SignupPage() {
   const [name, setName] = useState("");
   const [workspace, setWorkspace] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function submit(e: FormEvent<HTMLFormElement>) {
+  async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    // Signup endpoint/session flow will be connected after the
-    // backend contract is merged.
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          workspaceName: workspace,
+          email,
+          password,
+        }),
+      });
+
+      const data: unknown = await response.json();
+
+      if (!response.ok) {
+        const message =
+          typeof data === "object" &&
+          data !== null &&
+          "error" in data &&
+          typeof data.error === "string"
+            ? data.error
+            : "Unable to create your account.";
+
+        setError(message);
+        return;
+      }
+
+      const loginResult = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (!loginResult || loginResult.error) {
+        setError(
+          "Your workspace was created. Please sign in with your new account.",
+        );
+        return;
+      }
+
+      window.location.href = "/dashboard";
+    } catch {
+      setError("Unable to create your account. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--background)] px-5 py-10">
-      {/* Ambient background */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -left-32 -top-32 h-80 w-80 rounded-full bg-brand/10 blur-3xl" />
         <div className="absolute -bottom-40 -right-32 h-96 w-96 rounded-full bg-brand/10 blur-3xl" />
       </div>
 
       <div className="relative w-full max-w-md">
-        {/* Brand */}
         <div className="mb-8 text-center">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand text-lg font-bold text-white shadow-lg shadow-indigo-500/20">
             L
@@ -53,23 +103,15 @@ export default function SignupPage() {
           </p>
         </div>
 
-        {/* Signup card */}
-        <form
-          onSubmit={submit}
-          className="card overflow-hidden"
-        >
+        <form onSubmit={submit} className="card overflow-hidden">
           <div className="border-b border-line bg-surface-soft px-6 py-5">
-            <h2 className="font-bold text-ink">
-              Create your account
-            </h2>
-
+            <h2 className="font-bold text-ink">Create your account</h2>
             <p className="mt-1 text-xs text-muted">
               Your account will become the workspace administrator.
             </p>
           </div>
 
           <div className="space-y-5 p-6">
-            {/* Name */}
             <div>
               <label
                 htmlFor="name"
@@ -77,13 +119,11 @@ export default function SignupPage() {
               >
                 Your name
               </label>
-
               <div className="relative">
                 <UserRound
                   size={17}
                   className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted"
                 />
-
                 <input
                   id="name"
                   className="input pl-10"
@@ -96,7 +136,6 @@ export default function SignupPage() {
               </div>
             </div>
 
-            {/* Workspace */}
             <div>
               <label
                 htmlFor="workspace"
@@ -104,13 +143,11 @@ export default function SignupPage() {
               >
                 Workspace name
               </label>
-
               <div className="relative">
                 <Building2
                   size={17}
                   className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted"
                 />
-
                 <input
                   id="workspace"
                   className="input pl-10"
@@ -122,7 +159,6 @@ export default function SignupPage() {
               </div>
             </div>
 
-            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -130,13 +166,11 @@ export default function SignupPage() {
               >
                 Email
               </label>
-
               <div className="relative">
                 <Mail
                   size={17}
                   className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted"
                 />
-
                 <input
                   id="email"
                   className="input pl-10"
@@ -150,7 +184,6 @@ export default function SignupPage() {
               </div>
             </div>
 
-            {/* Password */}
             <div>
               <label
                 htmlFor="password"
@@ -158,13 +191,11 @@ export default function SignupPage() {
               >
                 Password
               </label>
-
               <div className="relative">
                 <LockKeyhole
                   size={17}
                   className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted"
                 />
-
                 <input
                   id="password"
                   className="input pl-10"
@@ -177,29 +208,41 @@ export default function SignupPage() {
                   placeholder="At least 8 characters"
                 />
               </div>
-
               <p className="mt-2 text-[11px] text-muted">
                 Use at least 8 characters for your password.
               </p>
             </div>
 
-            {/* Submit */}
+            {error && (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-400">
+                {error}
+              </div>
+            )}
+
             <button
               type="submit"
-              className="btn-primary group w-full gap-2 py-2.5"
+              disabled={loading}
+              className="btn-primary group w-full gap-2 py-2.5 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Create workspace
-              <ArrowRight
-                size={16}
-                className="transition-transform duration-200 group-hover:translate-x-0.5"
-              />
+              {loading ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Creating workspace...
+                </>
+              ) : (
+                <>
+                  Create workspace
+                  <ArrowRight
+                    size={16}
+                    className="transition-transform duration-200 group-hover:translate-x-0.5"
+                  />
+                </>
+              )}
             </button>
 
             <div className="flex items-center gap-3">
               <div className="h-px flex-1 bg-line" />
-              <span className="text-[11px] font-medium text-muted">
-                LOOP
-              </span>
+              <span className="text-[11px] font-medium text-muted">LOOP</span>
               <div className="h-px flex-1 bg-line" />
             </div>
 
