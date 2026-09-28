@@ -20,6 +20,10 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
 
   async function submit() {
+    if (loading) {
+      return;
+    }
+
     setError("");
 
     const normalizedName = name.trim();
