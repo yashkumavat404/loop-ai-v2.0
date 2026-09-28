@@ -67,6 +67,9 @@ export async function POST(request: Request) {
         userId: user.id,
         workspaceId: workspace.id,
       };
+    }, {
+      maxWait: 10_000,
+      timeout: 15_000,
     });
 
     return NextResponse.json(
