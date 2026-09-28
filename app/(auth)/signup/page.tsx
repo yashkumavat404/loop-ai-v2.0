@@ -19,8 +19,7 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function submit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function submit() {
     setError("");
 
     const normalizedName = name.trim();
@@ -163,7 +162,10 @@ export default function SignupPage() {
           <form
             noValidate
             onSubmit={submit}
-            onInvalid={() => setError("Please complete all required fields.")}
+            onInvalid={(event) => {
+              event.preventDefault();
+              setError("Please complete all required fields.");
+            }}
             className="overflow-hidden rounded-2xl border border-[#dfe6ef] bg-white shadow-[0_12px_35px_rgba(24,45,75,0.07)] dark:border-[#273447] dark:bg-[#111923] dark:shadow-[0_14px_40px_rgba(0,0,0,0.25)]">
             <div className="border-b border-[#edf1f5] bg-[#fafbfd] px-6 py-5 dark:border-[#273447] dark:bg-[#0d141e]">
               <h2 className="font-bold">Create your account</h2>
@@ -213,8 +215,11 @@ export default function SignupPage() {
               )}
 
               <button
-                type="submit"
+                type="button"
                 disabled={loading}
+                onClick={() => {
+                  void submit();
+                }}
                 className="btn-primary group w-full gap-2 py-2.5 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading ? (
