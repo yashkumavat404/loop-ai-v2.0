@@ -65,8 +65,18 @@ export function SentimentChart({ data }: { data: SentimentPoint[] }) {
                 contentStyle={{
                   borderRadius: "10px",
                   border: "1px solid var(--border)",
-                  background: "var(--surface)", boxShadow: "0 8px 24px rgba(0,0,0,0.24)",
+                  background: "var(--surface)",
+                  color: "var(--foreground)",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.24)",
                   fontSize: "11px",
+                  padding: "8px 10px",
+                }}
+                labelStyle={{
+                  color: "var(--foreground)",
+                  fontWeight: 600,
+                }}
+                itemStyle={{
+                  color: "var(--foreground)",
                 }}
               />
             </PieChart>
