@@ -317,7 +317,7 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : recent.length ? (
-              recent.map((item) => {
+              recent.map((item) => (
                 <a
                   key={item.id}
                   href={`/inbox/${item.id}`}
@@ -340,8 +340,7 @@ export default function DashboardPage() {
                     </span>
                   )}
                 </a>
-              ))
-            ) : (
+              ))            ) : (
               <div className="py-10 text-center text-sm text-[#8491a3]">
                 No feedback yet.
               </div>
