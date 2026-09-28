@@ -150,6 +150,7 @@ export default function InboxPage() {
   return (
     <div className="mx-auto w-full max-w-[1500px]">
       <PageHeader
+        eyebrow="CUSTOMER FEEDBACK"
         title="Feedback Inbox"
         description="Search, filter and manage customer feedback."
         action={
@@ -189,19 +190,19 @@ export default function InboxPage() {
       )}
 
       {showForm && (
-        <section className="card mb-6 overflow-hidden">
-          <div className="border-b border-line bg-surface px-5 py-4">
+        <section className="mb-5 overflow-hidden rounded-2xl border border-[#e2e9f1] bg-white shadow-[0_4px_18px_rgba(24,45,75,0.045)] dark:border-[#273447] dark:bg-[#111923] dark:shadow-[0_10px_30px_rgba(0,0,0,0.22)]">
+          <div className="flex items-center gap-3 border-b border-[#edf1f5] px-5 py-4 dark:border-[#273447]">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#eef4ff] text-[#2f6fed] dark:bg-[#162b4a] dark:text-[#76a9ff]">
                 <Inbox className="h-4 w-4" />
               </div>
 
               <div>
-                <h2 className="text-sm font-bold text-ink">
+                <h2 className="text-sm font-bold text-[#17263a] dark:text-[#eef3f9]">
                   Add customer feedback
                 </h2>
 
-                <p className="mt-0.5 text-xs text-muted">
+                <p className="mt-0.5 text-xs text-[#8491a3] dark:text-[#8d9aad]">
                   Add a feedback item to the current workspace.
                 </p>
               </div>
@@ -219,8 +220,8 @@ export default function InboxPage() {
         </section>
       )}
 
-      <section className="card overflow-hidden">
-        <div className="border-b border-line bg-white p-4 dark:bg-[#0f141d] sm:p-5">
+      <section className="overflow-hidden rounded-2xl border border-[#e2e9f1] bg-white shadow-[0_4px_18px_rgba(24,45,75,0.045)] dark:border-[#273447] dark:bg-[#111923] dark:shadow-[0_10px_30px_rgba(0,0,0,0.22)]">
+        <div className="border-b border-[#edf1f5] p-4 dark:border-[#273447] sm:p-5">
           <FeedbackFilters
             search={search}
             status={status}
@@ -250,9 +251,9 @@ export default function InboxPage() {
           />
         </div>
 
-        <div className="border-t border-line">
+        <div className="border-t border-[#edf1f5] dark:border-[#273447]">
           {loading ? (
-            <div className="p-12 text-center">
+            <div className="p-14 text-center">
               <div className="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600 dark:border-indigo-900 dark:border-t-indigo-400" />
 
               <p className="mt-4 text-sm font-semibold text-ink">
@@ -264,7 +265,7 @@ export default function InboxPage() {
               </p>
             </div>
           ) : error ? (
-            <div className="p-12 text-center">
+            <div className="p-14 text-center">
               <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400">
                 <Inbox className="h-5 w-5" />
               </div>
@@ -287,8 +288,8 @@ export default function InboxPage() {
               ))}
             </div>
           ) : (
-            <div className="p-12 text-center">
-              <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-surface text-muted">
+            <div className="p-14 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1f5f9] text-[#8290a3] dark:bg-[#182230] dark:text-[#8d9aad]">
                 <Inbox className="h-5 w-5" />
               </div>
 
@@ -303,10 +304,10 @@ export default function InboxPage() {
           )}
         </div>
 
-        <div className="flex items-center justify-between border-t border-line bg-surface px-4 py-3">
-          <p className="text-xs font-medium text-muted">
-            Page <span className="text-ink">{page}</span> of{" "}
-            <span className="text-ink">{totalPages}</span>
+        <div className="flex items-center justify-between border-t border-[#edf1f5] bg-[#fafbfd] px-4 py-3 dark:border-[#273447] dark:bg-[#0d141e]">
+          <p className="text-xs font-medium text-[#7b899c] dark:text-[#8d9aad]">
+            Page <span className="text-[#34455b] dark:text-[#dbe4ef]">{page}</span> of{" "}
+            <span className="text-[#34455b] dark:text-[#dbe4ef]">{totalPages}</span>
           </p>
 
           <div className="flex gap-2">
