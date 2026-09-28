@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -32,22 +32,21 @@ export function Sidebar({
   const pathname = usePathname();
 
   const content = (
-    <div className="flex h-full flex-col bg-white dark:bg-[#0f141d]">
-      <div className="flex h-16 shrink-0 items-center justify-between border-b border-line px-5">
+    <div className="flex h-full flex-col bg-[#0d1b2a] text-white">
+      <div className="flex h-[76px] shrink-0 items-center justify-between border-b border-white/10 px-5">
         <Link
           href="/dashboard"
           onClick={onMobileClose}
           className="flex items-center gap-3"
         >
-          <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-sm font-bold text-white shadow-sm">
+          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-[#2f6fed] text-sm font-bold shadow-[0_8px_24px_rgba(47,111,237,0.28)]">
             L
-            <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-emerald-400 ring-2 ring-white dark:ring-[#0f141d]" />
+            <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0d1b2a]" />
           </div>
-
           <div>
-            <p className="font-bold tracking-tight text-ink">LOOP</p>
-            <p className="text-[10px] font-medium text-muted">
-              Customer intelligence
+            <p className="text-[17px] font-bold tracking-tight">LOOP</p>
+            <p className="text-[10px] font-medium text-white/55">
+              Customer Intelligence
             </p>
           </div>
         </Link>
@@ -55,74 +54,73 @@ export function Sidebar({
         <button
           type="button"
           onClick={onMobileClose}
-          className="rounded-lg p-2 text-muted transition-all hover:bg-surface hover:text-ink lg:hidden"
+          className="rounded-lg p-2 text-white/60 transition hover:bg-white/10 hover:text-white lg:hidden"
           aria-label="Close menu"
         >
           <X size={19} />
         </button>
       </div>
 
-      <nav className="flex-1 space-y-1 px-3 py-5">
-        <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">
+      <nav className="flex-1 px-4 py-7">
+        <p className="px-3 pb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-white/40">
           Workspace
         </p>
 
-        {links.map((link) => {
-          const Icon = link.icon;
-          const active =
-            pathname === link.href ||
-            pathname.startsWith(`${link.href}/`);
+        <div className="space-y-1.5">
+          {links.map((link) => {
+            const Icon = link.icon;
+            const active =
+              pathname === link.href ||
+              pathname.startsWith(`${link.href}/`);
 
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={onMobileClose}
-              className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
-                active
-                  ? "bg-indigo-50 text-indigo-700 shadow-sm dark:bg-indigo-500/10 dark:text-indigo-300"
-                  : "text-muted hover:bg-surface hover:text-ink"
-              }`}
-            >
-              {active && (
-                <span className="absolute left-0 top-1/2 h-6 w-0.5 -translate-y-1/2 rounded-full bg-indigo-600 dark:bg-indigo-400" />
-              )}
-
-              <Icon
-                size={18}
-                strokeWidth={active ? 2.2 : 1.9}
-                className={
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={onMobileClose}
+                className={`group relative flex items-center gap-3 rounded-xl px-3.5 py-3 text-[13px] font-medium transition-all duration-200 ${
                   active
-                    ? "text-indigo-600 dark:text-indigo-400"
-                    : "text-muted transition-colors group-hover:text-ink"
-                }
-              />
-
-              <span>{link.label}</span>
-            </Link>
-          );
-        })}
+                    ? "bg-[#2f6fed] text-white shadow-[0_8px_24px_rgba(47,111,237,0.24)]"
+                    : "text-white/62 hover:bg-white/[0.07] hover:text-white"
+                }`}
+              >
+                <Icon
+                  size={18}
+                  strokeWidth={active ? 2.2 : 1.8}
+                  className={active ? "text-white" : "text-white/55 group-hover:text-white"}
+                />
+                <span>{link.label}</span>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
 
-      <div className="mx-4 mb-5 rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-slate-50 p-4 dark:border-indigo-500/20 dark:from-indigo-500/10 dark:to-slate-900">
-        <div className="flex items-center gap-2 text-sm font-semibold text-ink">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white shadow-sm dark:bg-neutral-800">
-            <Sparkles size={15} className="text-indigo-600 dark:text-indigo-400" />
+      <div className="mx-4 mb-5 rounded-2xl border border-white/10 bg-white/[0.06] p-4">
+        <div className="flex items-center gap-2 text-sm font-semibold">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#18304a]">
+            <Sparkles size={15} className="text-[#75a8ff]" />
           </div>
-          AI insights
+          Ask LOOP
         </div>
-
-        <p className="mt-3 text-xs leading-5 text-muted">
-          Ask questions about real customer feedback and trace answers back to
-          sources.
+        <p className="mt-3 text-xs leading-5 text-white/50">
+          Ask questions about real customer feedback and trace every answer to
+          its sources.
         </p>
+        <Link
+          href="/ask"
+          onClick={onMobileClose}
+          className="mt-3 inline-flex text-xs font-semibold text-[#8db8ff] hover:text-white"
+        >
+          Open insights →
+        </Link>
       </div>
     </div>
   );
 
   return (
     <>
-      <aside className="hidden w-64 shrink-0 border-r border-line bg-white dark:bg-[#0f141d] lg:block">
+      <aside className="hidden w-[268px] shrink-0 bg-[#0d1b2a] lg:block">
         {content}
       </aside>
 
@@ -131,11 +129,10 @@ export function Sidebar({
           <button
             type="button"
             onClick={onMobileClose}
-            className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
             aria-label="Close navigation"
           />
-
-          <aside className="relative h-full w-[280px] max-w-[85vw] border-r border-line bg-white shadow-2xl dark:bg-[#0f141d]">
+          <aside className="relative h-full w-[280px] max-w-[85vw] shadow-2xl">
             {content}
           </aside>
         </div>
@@ -143,4 +140,3 @@ export function Sidebar({
     </>
   );
 }
-
