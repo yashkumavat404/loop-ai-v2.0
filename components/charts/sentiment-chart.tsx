@@ -64,7 +64,7 @@ export function SentimentChart({ data }: { data: SentimentPoint[] }) {
               <Tooltip
                 contentStyle={{
                   borderRadius: "10px",
-                  border: "1px solid #e2e9f1",
+                  border: "1px solid var(--border)",
                   boxShadow: "0 8px 24px rgba(24,45,75,0.08)",
                   fontSize: "11px",
                 }}
