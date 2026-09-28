@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Building2, Check, ShieldCheck, UserRound } from "lucide-react";
 
 export default function SettingsPage() {
@@ -12,7 +12,24 @@ export default function SettingsPage() {
     setSaved(false);
   };
 
-  const displayName = "Admin";
+  const [displayName, setDisplayName] = useState("User");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("USER");
+
+  useEffect(() => {
+    fetch("/api/auth/session", { credentials: "include" })
+      .then((response) => response.json())
+      .then((session) => {
+        const user = session?.user;
+        if (user) {
+          setDisplayName(user.name || user.email?.split("@")[0] || "User");
+          setEmail(user.email || "");
+          setRole(user.role || "USER");
+        }
+      })
+      .catch(() => undefined);
+  }, []);
+
   const avatarUrl = `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(displayName)}&backgroundColor=2f6fed&fontFamily=Arial&fontWeight=700&fontSize=42`;
 
   return (
@@ -86,7 +103,8 @@ export default function SettingsPage() {
             <div className="min-w-0">
               <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#7c8da3] dark:text-[#8292a8]">Profile image</p>
               <p className="mt-1 text-lg font-bold text-[#17263a] dark:text-[#eef3f9]">{displayName}</p>
-              <p className="mt-1 text-sm text-[#8491a3] dark:text-[#8d9aad]">
+              <p className="mt-1 text-sm text-[#8491a3] dark:text-[#8d9aad]">{email || "Signed-in account"}</p>
+              <p className="mt-1 text-xs text-[#8491a3] dark:text-[#8d9aad]">
                 A unique avatar is shown automatically for each signed-in user.
               </p>
             </div>
@@ -112,7 +130,7 @@ export default function SettingsPage() {
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#2f6fed] text-white"><ShieldCheck size={20} /></div>
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#7c8da3] dark:text-[#8292a8]">Access level</p>
-                <p className="mt-1 text-lg font-bold text-[#17263a] dark:text-[#eef3f9]">ADMIN</p>
+                <p className="mt-1 text-lg font-bold text-[#17263a] dark:text-[#eef3f9]">{role}</p>
               </div>
             </div>
             <span className="w-fit rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-400">
