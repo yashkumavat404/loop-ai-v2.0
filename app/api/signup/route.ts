@@ -67,9 +67,6 @@ export async function POST(request: Request) {
         userId: user.id,
         workspaceId: workspace.id,
       };
-    }, {
-      maxWait: 10_000,
-      timeout: 15_000,
     });
 
     return NextResponse.json(
@@ -82,9 +79,23 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Signup failed:", error);
 
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "P2002"
+    ) {
+      return NextResponse.json(
+        {
+          error: "An account with this email already exists",
+        },
+        { status: 409 },
+      );
+    }
+
     return NextResponse.json(
       {
-        error: "Something went wrong while creating the account",
+        error: "Unable to create your account right now. Please try again.",
       },
       { status: 500 },
     );
