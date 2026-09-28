@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   CartesianGrid,
@@ -14,10 +14,8 @@ import type { TrendPoint } from "@/lib/types";
 export function VolumeChart({ data }: { data: TrendPoint[] }) {
   if (!data.length) {
     return (
-      <div className="flex h-72 items-center justify-center rounded-xl bg-muted">
-        <p className="text-sm text-muted-foreground">
-          No feedback volume data available yet.
-        </p>
+      <div className="flex h-72 items-center justify-center rounded-xl bg-[#f7f9fc]">
+        <p className="text-sm text-[#8491a3]">No feedback volume data available yet.</p>
       </div>
     );
   }
@@ -25,21 +23,21 @@ export function VolumeChart({ data }: { data: TrendPoint[] }) {
   return (
     <div className="h-72 w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={data}
-          margin={{ top: 8, right: 8, left: -20, bottom: 4 }}
-        >
-          <CartesianGrid
-            strokeDasharray="3 3"
-            vertical={false}
-            stroke="#e2e8f0"
-          />
+        <LineChart data={data} margin={{ top: 12, right: 8, left: -18, bottom: 4 }}>
+          <defs>
+            <linearGradient id="volumeArea" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#2f6fed" stopOpacity={0.18} />
+              <stop offset="100%" stopColor="#2f6fed" stopOpacity={0.01} />
+            </linearGradient>
+          </defs>
+
+          <CartesianGrid strokeDasharray="2 4" vertical={false} stroke="#e8edf3" />
 
           <XAxis
             dataKey="label"
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 11, fill: "#94a3b8" }}
+            tick={{ fontSize: 10, fill: "#8a96a7" }}
             dy={8}
           />
 
@@ -47,26 +45,26 @@ export function VolumeChart({ data }: { data: TrendPoint[] }) {
             allowDecimals={false}
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 11, fill: "#94a3b8" }}
+            tick={{ fontSize: 10, fill: "#8a96a7" }}
           />
 
           <Tooltip
-            cursor={{ stroke: "#cbd5e1", strokeDasharray: "4 4" }}
+            cursor={{ stroke: "#b9c8db", strokeDasharray: "4 4" }}
             contentStyle={{
-              borderRadius: "12px",
-              border: "1px solid #e2e8f0",
-              boxShadow: "0 8px 30px rgba(15, 23, 42, 0.08)",
-              fontSize: "12px",
+              borderRadius: "10px",
+              border: "1px solid #e2e9f1",
+              boxShadow: "0 8px 24px rgba(24,45,75,0.08)",
+              fontSize: "11px",
             }}
           />
 
           <Line
             type="monotone"
             dataKey="value"
-            stroke="#4f46e5"
+            stroke="#2f6fed"
             strokeWidth={2.5}
-            dot={{ r: 3, strokeWidth: 2, fill: "#ffffff" }}
-            activeDot={{ r: 5, strokeWidth: 2 }}
+            dot={{ r: 2.5, strokeWidth: 2, fill: "#ffffff", stroke: "#2f6fed" }}
+            activeDot={{ r: 5, strokeWidth: 2, fill: "#ffffff" }}
           />
         </LineChart>
       </ResponsiveContainer>
