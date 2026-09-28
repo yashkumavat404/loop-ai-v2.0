@@ -14,8 +14,8 @@ import type { TrendPoint } from "@/lib/types";
 export function VolumeChart({ data }: { data: TrendPoint[] }) {
   if (!data.length) {
     return (
-      <div className="flex h-72 items-center justify-center rounded-xl bg-[#f7f9fc]">
-        <p className="text-sm text-[#8491a3]">No feedback volume data available yet.</p>
+      <div className="flex h-72 items-center justify-center rounded-xl bg-[#f7f9fc] dark:bg-[#151e2a]">
+        <p className="text-sm text-[#8491a3] dark:text-[#8d9aad]">No feedback volume data available yet.</p>
       </div>
     );
   }
@@ -31,13 +31,13 @@ export function VolumeChart({ data }: { data: TrendPoint[] }) {
             </linearGradient>
           </defs>
 
-          <CartesianGrid strokeDasharray="2 4" vertical={false} stroke="#e8edf3" />
+          <CartesianGrid strokeDasharray="2 4" vertical={false} stroke="var(--border)" />
 
           <XAxis
             dataKey="label"
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 10, fill: "#8a96a7" }}
+            tick={{ fontSize: 10, fill: "var(--text-muted)" }}
             dy={8}
           />
 
@@ -45,15 +45,15 @@ export function VolumeChart({ data }: { data: TrendPoint[] }) {
             allowDecimals={false}
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 10, fill: "#8a96a7" }}
+            tick={{ fontSize: 10, fill: "var(--text-muted)" }}
           />
 
           <Tooltip
-            cursor={{ stroke: "#b9c8db", strokeDasharray: "4 4" }}
+            cursor={{ stroke: "var(--border-strong)", strokeDasharray: "4 4" }}
             contentStyle={{
               borderRadius: "10px",
               border: "1px solid var(--border)",
-              boxShadow: "0 8px 24px rgba(24,45,75,0.08)",
+              background: "var(--surface)", boxShadow: "0 8px 24px rgba(0,0,0,0.24)",
               fontSize: "11px",
             }}
           />
