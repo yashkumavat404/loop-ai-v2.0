@@ -1,17 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { ArrowRight, LockKeyhole, Mail } from "lucide-react";
 import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
-  const searchParams = useSearchParams();
-  const created = searchParams.get("created") === "1";
-  const createdEmail = searchParams.get("email") ?? "";
+  const [email, setEmail] = useState("");
+  const [created, setCreated] = useState(false);
 
-  const [email, setEmail] = useState(createdEmail);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const createdParam = params.get("created") === "1";
+    const createdEmail = params.get("email") ?? "";
+
+    setCreated(createdParam);
+
+    if (createdEmail) {
+      setEmail(createdEmail);
+    }
+  }, []);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
