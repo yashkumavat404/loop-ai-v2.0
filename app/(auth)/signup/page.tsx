@@ -61,7 +61,14 @@ export default function SignupPage() {
         }),
       });
 
-      const data: unknown = await response.json();
+      const responseText = await response.text();
+      let data: unknown = null;
+
+      try {
+        data = responseText ? JSON.parse(responseText) : null;
+      } catch {
+        data = null;
+      }
 
       if (!response.ok) {
         const message =
@@ -166,7 +173,11 @@ export default function SignupPage() {
             </p>
           </div>
 
-          <form noValidate onSubmit={submit} className="overflow-hidden rounded-2xl border border-[#dfe6ef] bg-white shadow-[0_12px_35px_rgba(24,45,75,0.07)] dark:border-[#273447] dark:bg-[#111923] dark:shadow-[0_14px_40px_rgba(0,0,0,0.25)]">
+          <form
+            noValidate
+            onSubmit={submit}
+            onInvalid={() => setError("Please complete all required fields.")}
+            className="overflow-hidden rounded-2xl border border-[#dfe6ef] bg-white shadow-[0_12px_35px_rgba(24,45,75,0.07)] dark:border-[#273447] dark:bg-[#111923] dark:shadow-[0_14px_40px_rgba(0,0,0,0.25)]">
             <div className="border-b border-[#edf1f5] bg-[#fafbfd] px-6 py-5 dark:border-[#273447] dark:bg-[#0d141e]">
               <h2 className="font-bold">Create your account</h2>
               <p className="mt-1 text-xs text-[#8491a3] dark:text-[#8d9aad]">
@@ -214,7 +225,11 @@ export default function SignupPage() {
                 </div>
               )}
 
-              <button type="submit" disabled={loading} className="btn-primary group w-full gap-2 py-2.5 disabled:cursor-not-allowed disabled:opacity-60">
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary group w-full gap-2 py-2.5 disabled:cursor-not-allowed disabled:opacity-60"
+              >
                 {loading ? (
                   <>
                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
