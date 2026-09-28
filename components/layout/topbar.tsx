@@ -58,6 +58,7 @@ export function Topbar({
 
   const displayName = user.name || user.email?.split("@")[0] || "User";
   const initial = displayName.charAt(0).toUpperCase();
+  const avatarUrl = `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(displayName)}&backgroundColor=2f6fed&fontFamily=Arial&fontWeight=700&fontSize=42`;
 
   return (
     <header className="sticky top-0 z-30 flex h-[76px] shrink-0 items-center justify-between border-b border-[#e1e7ef] bg-white/95 px-4 backdrop-blur dark:border-[#263242] dark:bg-[#0b111a]/95 sm:px-7">
@@ -145,8 +146,8 @@ export function Topbar({
             }}
             className="flex items-center gap-2 rounded-xl border border-[#e2e9f1] bg-white px-2 py-1.5 transition hover:bg-[#f7f9fc] dark:border-[#2b394b] dark:bg-[#141c27] dark:hover:bg-[#1a2532]"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#2f6fed] text-sm font-bold text-white">
-              {initial}
+            <div className="h-8 w-8 overflow-hidden rounded-lg bg-[#2f6fed] shadow-sm">
+              <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
             </div>
             <div className="hidden text-left sm:block">
               <p className="max-w-32 truncate text-xs font-semibold text-[#16263a] dark:text-[#eef3f9]">
@@ -161,7 +162,16 @@ export function Topbar({
 
           {accountOpen && (
             <div className="absolute right-0 top-12 w-56 rounded-xl border border-[#e1e7ef] bg-white p-2 shadow-xl dark:border-[#2b394b] dark:bg-[#111923]">
-              <div className="border-b border-[#e8edf3] px-3 py-2 dark:border-[#293647]">
+              <div className="border-b border-[#e8edf3] px-3 py-3 dark:border-[#293647]">
+                <div className="mb-3 flex items-center gap-3">
+                  <div className="h-10 w-10 overflow-hidden rounded-xl bg-[#2f6fed] shadow-sm">
+                    <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#8a96a7] dark:text-[#738197]">Profile</p>
+                    <p className="mt-0.5 truncate text-xs font-semibold text-[#17263a] dark:text-[#eef3f9]">{displayName}</p>
+                  </div>
+                </div>
                 <p className="text-sm font-semibold text-[#17263a] dark:text-[#eef3f9]">
                   {displayName}
                 </p>
