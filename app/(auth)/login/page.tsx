@@ -119,6 +119,65 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="password"
+                className="mb-2 block<main className="relative min-h-screen overflow-hidden bg-[#f5f7fb] text-[#17263a] dark:bg-[#080d14] dark:text-[#eef3f9]">
+      <div className="absolute inset-0 pointer-events-none"><div className="absolute left-[-180px] top-[-180px] h-[420px] w-[420px] rounded-full bg-[#2f6fed]/10 blur-3xl dark:bg-[#2f6fed]/12" /><div className="absolute bottom-[-220px] right-[-160px] h-[480px] w-[480px] rounded-full bg-[#2f6fed]/8 blur-3xl dark:bg-[#2f6fed]/10" /></div>
+      <div className="relative mx-auto grid min-h-screen w-full max-w-6xl items-center gap-12 px-5 py-10 lg:grid-cols-[1fr_420px] lg:px-8">
+        <section className="hidden lg:block">
+          <div className="mb-8 flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#2f6fed] text-lg font-bold text-white">L</div><div><p className="text-sm font-bold">LOOP</p><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8491a3] dark:text-[#8292a8]">Customer intelligence</p></div></div>
+          <p className="max-w-xl text-5xl font-bold leading-[1.05] tracking-[-0.04em]">Understand the voice behind every piece of feedback.</p>
+          <p className="mt-6 max-w-lg text-base leading-7 text-[#718096] dark:text-[#9aa8ba]">Bring customer feedback into one workspace, surface the themes that matter, and turn raw comments into clear product insight.</p>
+          <div className="mt-10 grid max-w-lg grid-cols-3 gap-3">{["Feedback","Themes","Insights"].map((item,i)=><div key={item} className="rounded-xl border border-[#dfe6ef] bg-white/80 px-4 py-4 shadow-sm backdrop-blur dark:border-[#273447] dark:bg-[#111923]/80"><div className="mb-3 h-1.5 w-10 rounded-full bg-[#2f6fed]" /><p className="text-xs font-bold">{item}</p><p className="mt-1 text-[10px] leading-4 text-[#8491a3] dark:text-[#8292a8]">{["Capture customer voice","Find recurring patterns","Act on what matters"][i]}</p></div>)}</div>
+        </section>
+        <section className="mx-auto w-full max-w-md">
+          <div className="mb-6 flex items-center gap-3 lg:hidden"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#2f6fed] text-lg font-bold text-white">L</div><div><p className="text-sm font-bold">LOOP</p><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8491a3] dark:text-[#8292a8]">Customer intelligence</p></div></div>
+          <div className="mb-5"><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#7c8da3] dark:text-[#8292a8]">Workspace access</p><h1 className="mt-2 text-3xl font-bold tracking-tight">Welcome back</h1><p className="mt-2 text-sm text-[#718096] dark:text-[#9aa8ba]">Sign in to continue to your feedback workspace.</p></div>
+          <form
+          onSubmit={submit}
+          className="card overflow-hidden"
+        >
+          <div className="border-b border-line bg-surface-soft px-6 py-5">
+            <h2 className="font-bold text-ink">
+              Sign in to your workspace
+            </h2>
+
+            <p className="mt-1 text-xs text-muted">
+              Enter your account credentials to continue.
+            </p>
+          </div>
+
+          <div className="space-y-5 p-6">
+            {/* Email */}
+            <div>
+              <label
+                htmlFor="email"
+                className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-muted"
+              >
+                Email
+              </label>
+
+              <div className="relative">
+                <Mail
+                  size={17}
+                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted"
+                />
+
+                <input
+                  id="email"
+                  className="input pl-10"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoComplete="email"
+                  placeholder="you@company.com"
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div>
+              <label
+                htmlFor="password"
                 className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-muted"
               >
                 Password
@@ -196,6 +255,8 @@ export default function LoginPage() {
           AI-powered customer feedback intelligence platform
         </p>
       </div>
+    
+          <p className="mt-5 text-center text-[10px] text-[#8491a3] dark:text-[#8292a8]">LOOP · AI-powered customer feedback intelligence</p>
+        </section>
+      </div>
     </main>
-  );
-}
