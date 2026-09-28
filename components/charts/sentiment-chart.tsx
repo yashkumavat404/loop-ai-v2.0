@@ -18,8 +18,8 @@ const colors = {
 export function SentimentChart({ data }: { data: SentimentPoint[] }) {
   if (!data.length) {
     return (
-      <div className="flex h-72 items-center justify-center rounded-xl bg-[#f7f9fc]">
-        <p className="text-sm text-[#8491a3]">No sentiment data available yet.</p>
+      <div className="flex h-72 items-center justify-center rounded-xl bg-[#f7f9fc] dark:bg-[#151e2a]">
+        <p className="text-sm text-[#8491a3] dark:text-[#8d9aad]">No sentiment data available yet.</p>
       </div>
     );
   }
@@ -54,7 +54,7 @@ export function SentimentChart({ data }: { data: SentimentPoint[] }) {
                 innerRadius={58}
                 outerRadius={78}
                 paddingAngle={2}
-                stroke="#ffffff"
+                stroke="var(--surface)"
                 strokeWidth={3}
               >
                 {chartData.map((item) => (
@@ -65,7 +65,7 @@ export function SentimentChart({ data }: { data: SentimentPoint[] }) {
                 contentStyle={{
                   borderRadius: "10px",
                   border: "1px solid var(--border)",
-                  boxShadow: "0 8px 24px rgba(24,45,75,0.08)",
+                  background: "var(--surface)", boxShadow: "0 8px 24px rgba(0,0,0,0.24)",
                   fontSize: "11px",
                 }}
               />
@@ -73,8 +73,8 @@ export function SentimentChart({ data }: { data: SentimentPoint[] }) {
           </ResponsiveContainer>
 
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold text-[#17263a]">{total}</span>
-            <span className="text-[10px] text-[#8793a4]">Total Feedback</span>
+            <span className="text-2xl font-bold text-[#17263a] dark:text-[#eef3f9]">{total}</span>
+            <span className="text-[10px] text-[#8793a4] dark:text-[#8d9aad]">Total Feedback</span>
           </div>
         </div>
 
@@ -84,14 +84,14 @@ export function SentimentChart({ data }: { data: SentimentPoint[] }) {
             return (
               <div key={item.name}>
                 <div className="mb-1.5 flex items-center justify-between gap-3">
-                  <span className="text-[11px] font-semibold text-[#4d5d72]">
+                  <span className="text-[11px] font-semibold text-[#4d5d72] dark:text-[#b3bfd0]">
                     {item.name}
                   </span>
-                  <span className="text-[11px] font-bold text-[#34455b]">
-                    {item.value} <span className="ml-1 text-[#8a96a7]">{percent}%</span>
+                  <span className="text-[11px] font-bold text-[#34455b] dark:text-[#dbe4ef]">
+                    {item.value} <span className="ml-1 text-[#8a96a7] dark:text-[#8d9aad]">{percent}%</span>
                   </span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-[#edf1f5]">
+                <div className="h-2 overflow-hidden rounded-full bg-[#edf1f5] dark:bg-[#263244]">
                   <div
                     className="h-full rounded-full"
                     style={{
