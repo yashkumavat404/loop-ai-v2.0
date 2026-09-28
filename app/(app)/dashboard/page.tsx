@@ -125,10 +125,10 @@ function formatDate(value: string) {
 }
 
 function SentimentIcon({ sentiment }: { sentiment: Feedback["sentiment"] }) {
-  if (sentiment === "NEG") {
+  if (sentiment === "NEGATIVE") {
     return <ThumbsDown size={15} className="text-[#e05252]" />;
   }
-  if (sentiment === "POS") {
+  if (sentiment === "POSITIVE") {
     return <Smile size={15} className="text-[#2f9d70]" />;
   }
   return <MessageCircle size={15} className="text-[#6d7b8d]" />;
@@ -317,7 +317,7 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : recent.length ? (
-              recent.map((item) => (
+              recent.map((item) => {
                 <a
                   key={item.id}
                   href={`/inbox/${item.id}`}
@@ -334,7 +334,7 @@ export default function DashboardPage() {
                       {item.channel.replace("_", " ")} • {formatDate(item.createdAt)}
                     </p>
                   </div>
-                  {item.themes[0] && (
+                  {item.themes?.[0] && typeof item.themes[0] !== "string" && (
                     <span className="hidden max-w-[130px] truncate rounded-full bg-[#eef4ff] px-2.5 py-1 text-[9px] font-semibold text-[#356dc7] sm:block">
                       {item.themes[0].name}
                     </span>
