@@ -1,110 +1,110 @@
-﻿"use client";
+"use client";
 
 import {
-  Area,
-  AreaChart,
-  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
   ResponsiveContainer,
   Tooltip,
-  XAxis,
-  YAxis,
 } from "recharts";
 import type { SentimentPoint } from "@/lib/types";
+
+const colors = {
+  negative: "#2f5f9f",
+  neutral: "#a9bdd7",
+  positive: "#62a8f2",
+};
 
 export function SentimentChart({ data }: { data: SentimentPoint[] }) {
   if (!data.length) {
     return (
-      <div className="flex h-72 items-center justify-center rounded-xl bg-muted">
-        <p className="text-sm text-muted-foreground">
-          No sentiment data available yet.
-        </p>
+      <div className="flex h-72 items-center justify-center rounded-xl bg-[#f7f9fc]">
+        <p className="text-sm text-[#8491a3]">No sentiment data available yet.</p>
       </div>
     );
   }
 
+  const totals = data.reduce(
+    (acc, item) => ({
+      positive: acc.positive + (item.positive ?? 0),
+      neutral: acc.neutral + (item.neutral ?? 0),
+      negative: acc.negative + (item.negative ?? 0),
+    }),
+    { positive: 0, neutral: 0, negative: 0 },
+  );
+
+  const chartData = [
+    { name: "Negative", value: totals.negative, color: colors.negative },
+    { name: "Neutral", value: totals.neutral, color: colors.neutral },
+    { name: "Positive", value: totals.positive, color: colors.positive },
+  ];
+
+  const total = chartData.reduce((sum, item) => sum + item.value, 0);
+
   return (
     <div className="h-72 w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart
-          data={data}
-          margin={{ top: 8, right: 8, left: -20, bottom: 4 }}
-        >
-          <defs>
-            <linearGradient id="positiveFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#86efac" stopOpacity={0.7} />
-              <stop offset="100%" stopColor="#86efac" stopOpacity={0.08} />
-            </linearGradient>
+      <div className="flex h-full items-center gap-3">
+        <div className="relative h-48 w-48 shrink-0">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={chartData}
+                dataKey="value"
+                nameKey="name"
+                innerRadius={58}
+                outerRadius={78}
+                paddingAngle={2}
+                stroke="#ffffff"
+                strokeWidth={3}
+              >
+                {chartData.map((item) => (
+                  <Cell key={item.name} fill={item.color} />
+                ))}
+              </Pie>
+              <Tooltip
+                contentStyle={{
+                  borderRadius: "10px",
+                  border: "1px solid #e2e9f1",
+                  boxShadow: "0 8px 24px rgba(24,45,75,0.08)",
+                  fontSize: "11px",
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
 
-            <linearGradient id="neutralFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#cbd5e1" stopOpacity={0.65} />
-              <stop offset="100%" stopColor="#cbd5e1" stopOpacity={0.08} />
-            </linearGradient>
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-2xl font-bold text-[#17263a]">{total}</span>
+            <span className="text-[10px] text-[#8793a4]">Total Feedback</span>
+          </div>
+        </div>
 
-            <linearGradient id="negativeFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#fda4af" stopOpacity={0.7} />
-              <stop offset="100%" stopColor="#fda4af" stopOpacity={0.08} />
-            </linearGradient>
-          </defs>
-
-          <CartesianGrid
-            strokeDasharray="3 3"
-            vertical={false}
-            stroke="#e2e8f0"
-          />
-
-          <XAxis
-            dataKey="label"
-            tickLine={false}
-            axisLine={false}
-            tick={{ fontSize: 11, fill: "#94a3b8" }}
-            dy={8}
-          />
-
-          <YAxis
-            allowDecimals={false}
-            tickLine={false}
-            axisLine={false}
-            tick={{ fontSize: 11, fill: "#94a3b8" }}
-          />
-
-          <Tooltip
-            cursor={{ stroke: "#cbd5e1", strokeDasharray: "4 4" }}
-            contentStyle={{
-              borderRadius: "12px",
-              border: "1px solid #e2e8f0",
-              boxShadow: "0 8px 30px rgba(15, 23, 42, 0.08)",
-              fontSize: "12px",
-            }}
-          />
-
-          <Area
-            type="monotone"
-            dataKey="positive"
-            stackId="1"
-            fill="url(#positiveFill)"
-            stroke="#16a34a"
-            strokeWidth={2}
-          />
-
-          <Area
-            type="monotone"
-            dataKey="neutral"
-            stackId="1"
-            fill="url(#neutralFill)"
-            stroke="#64748b"
-            strokeWidth={2}
-          />
-
-          <Area
-            type="monotone"
-            dataKey="negative"
-            stackId="1"
-            fill="url(#negativeFill)"
-            stroke="#e11d48"
-            strokeWidth={2}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+        <div className="min-w-0 flex-1 space-y-4">
+          {chartData.map((item) => {
+            const percent = total ? Math.round((item.value / total) * 100) : 0;
+            return (
+              <div key={item.name}>
+                <div className="mb-1.5 flex items-center justify-between gap-3">
+                  <span className="text-[11px] font-semibold text-[#4d5d72]">
+                    {item.name}
+                  </span>
+                  <span className="text-[11px] font-bold text-[#34455b]">
+                    {item.value} <span className="ml-1 text-[#8a96a7]">{percent}%</span>
+                  </span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-[#edf1f5]">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${percent}%`,
+                      backgroundColor: item.color,
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
