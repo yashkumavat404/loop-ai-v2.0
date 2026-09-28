@@ -25,3 +25,16 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+# Local test data
+csv-ai-test.csv
+test-feedback.csv
+test-feedback-invalid.csv
+
+# TypeScript build cache
+tsconfig.tsbuildinfo
+
+# Local AI coding tool configuration
+.agents/
+.claude/
+.cursor/
+.devin/

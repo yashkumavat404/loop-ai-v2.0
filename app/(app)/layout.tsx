@@ -1,10 +1,28 @@
-import { AppShell } from "@/components/layout/app-shell";
+import { redirect } from "next/navigation";
 
-export default function ProtectedAppLayout({
-  children
+import { AppShell } from "@/components/layout/app-shell";
+import { auth } from "@/lib/auth";
+
+export default async function ProtectedAppLayout({
+  children,
 }: {
   children: React.ReactNode;
 }) {
-  // Auth.js/session enforcement will be added here after the backend/auth contract is merged.
-  return <AppShell>{children}</AppShell>;
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect("/login");
+  }
+
+  return (
+    <AppShell
+      user={{
+        name: session.user.name,
+        email: session.user.email,
+        role: session.user.role,
+      }}
+    >
+      {children}
+    </AppShell>
+  );
 }

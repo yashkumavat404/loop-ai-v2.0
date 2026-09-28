@@ -1,6 +1,6 @@
 export type Role = "ADMIN" | "ANALYST" | "VIEWER";
 
-export type FeedbackStatus = "NEW" | "REVIEWED" | "RESOLVED";
+export type FeedbackStatus = "NEW" | "REVIEWED" | "ACTIONED";
 
 export type FeedbackChannel = "WEB" | "CSV" | "EMAIL" | "SUPPORT" | "APP_STORE" | "SURVEY";
 

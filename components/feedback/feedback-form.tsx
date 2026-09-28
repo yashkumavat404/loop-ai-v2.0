@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useState } from "react";
 import { api } from "@/lib/api";
@@ -73,7 +73,7 @@ export function FeedbackForm({ onCreated }: { onCreated?: () => void }) {
         </select>
       </div>
 
-      {message && <p className="text-sm text-slate-600">{message}</p>}
+      {message && <p className="text-sm text-muted-foreground">{message}</p>}
 
       <button className="btn-primary" disabled={saving}>
         {saving ? "Saving..." : "Add feedback"}

@@ -1,46 +1,110 @@
-"use client";
+﻿"use client";
+
+import { Search, SlidersHorizontal } from "lucide-react";
 
 interface FeedbackFiltersProps {
   search: string;
   status: string;
   sentiment: string;
   channel: string;
+  theme: string;
   onSearch: (value: string) => void;
   onStatus: (value: string) => void;
   onSentiment: (value: string) => void;
   onChannel: (value: string) => void;
+  onTheme: (value: string) => void;
 }
 
 export function FeedbackFilters(props: FeedbackFiltersProps) {
   return (
-    <div className="grid gap-3 md:grid-cols-4">
-      <input
-        className="input md:col-span-2"
-        placeholder="Search feedback..."
-        value={props.search}
-        onChange={(e) => props.onSearch(e.target.value)}
-      />
-      <select className="input" value={props.status} onChange={(e) => props.onStatus(e.target.value)}>
-        <option value="">All statuses</option>
-        <option value="NEW">New</option>
-        <option value="REVIEWED">Reviewed</option>
-        <option value="RESOLVED">Resolved</option>
-      </select>
-      <select className="input" value={props.sentiment} onChange={(e) => props.onSentiment(e.target.value)}>
-        <option value="">All sentiment</option>
-        <option value="POSITIVE">Positive</option>
-        <option value="NEUTRAL">Neutral</option>
-        <option value="NEGATIVE">Negative</option>
-      </select>
-      <select className="input" value={props.channel} onChange={(e) => props.onChannel(e.target.value)}>
-        <option value="">All channels</option>
-        <option value="WEB">Web</option>
-        <option value="CSV">CSV</option>
-        <option value="EMAIL">Email</option>
-        <option value="SUPPORT">Support</option>
-        <option value="APP_STORE">App Store</option>
-        <option value="SURVEY">Survey</option>
-      </select>
+    <div>
+      <div className="mb-3 flex items-center gap-2">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+          <SlidersHorizontal className="h-3.5 w-3.5" />
+        </div>
+
+        <span className="text-xs font-bold uppercase tracking-[0.1em] text-muted">
+          Filter feedback
+        </span>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-5">
+        <div className="relative md:col-span-2">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+
+          <input
+            className="input pl-9"
+            placeholder="Search feedback..."
+            value={props.search}
+            onChange={(e) => props.onSearch(e.target.value)}
+          />
+        </div>
+
+        <select
+          className="input"
+          value={props.status}
+          onChange={(e) => props.onStatus(e.target.value)}
+        >
+          <option value="">All statuses</option>
+          <option value="NEW">New</option>
+          <option value="REVIEWED">Reviewed</option>
+          <option value="ACTIONED">Actioned</option>
+        </select>
+
+        <select
+          className="input"
+          value={props.sentiment}
+          onChange={(e) => props.onSentiment(e.target.value)}
+        >
+          <option value="">All sentiment</option>
+          <option value="POSITIVE">Positive</option>
+          <option value="NEUTRAL">Neutral</option>
+          <option value="NEGATIVE">Negative</option>
+        </select>
+
+        <select
+          className="input"
+          value={props.channel}
+          onChange={(e) => props.onChannel(e.target.value)}
+        >
+          <option value="">All channels</option>
+          <option value="WEB">Web</option>
+          <option value="CSV">CSV</option>
+          <option value="EMAIL">Email</option>
+          <option value="SUPPORT">Support</option>
+          <option value="APP_STORE">App Store</option>
+          <option value="SURVEY">Survey</option>
+        </select>
+
+        <select
+          className="input md:col-span-2"
+          value={props.theme}
+          onChange={(e) => props.onTheme(e.target.value)}
+        >
+          <option value="">All themes</option>
+          <option value="Dashboard & Analytics">
+            Dashboard & Analytics
+          </option>
+          <option value="Checkout & Payments">
+            Checkout & Payments
+          </option>
+          <option value="Mobile Experience">
+            Mobile Experience
+          </option>
+          <option value="Customer Support">
+            Customer Support
+          </option>
+          <option value="Search & Discovery">
+            Search & Discovery
+          </option>
+          <option value="Billing">
+            Billing
+          </option>
+          <option value="Customization">
+            Customization
+          </option>
+        </select>
+      </div>
     </div>
   );
 }

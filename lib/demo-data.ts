@@ -83,7 +83,7 @@ export const demoFeedback: Feedback[] = [
     text: "I like the new notification controls. They make the app less noisy.",
     customerName: "Sara",
     channel: "SURVEY",
-    status: "RESOLVED",
+    status: "ACTIONED",
     sentiment: "POSITIVE",
     sentimentScore: 0.67,
     featureArea: "Notifications",

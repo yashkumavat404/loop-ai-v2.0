@@ -1,4 +1,4 @@
-export function Badge({
+﻿export function Badge({
   children,
   tone = "neutral"
 }: {
@@ -6,7 +6,7 @@ export function Badge({
   tone?: "neutral" | "positive" | "negative" | "warning";
 }) {
   const classes = {
-    neutral: "bg-slate-100 text-slate-700",
+    neutral: "bg-muted text-muted-foreground",
     positive: "bg-emerald-50 text-emerald-700",
     negative: "bg-rose-50 text-rose-700",
     warning: "bg-amber-50 text-amber-700"
