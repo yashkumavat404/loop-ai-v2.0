@@ -9,7 +9,7 @@ import {
   Mail,
   UserRound,
 } from "lucide-react";
-import { signIn } from "next-auth/react";
+
 
 export default function SignupPage() {
   const [name, setName] = useState("");
@@ -83,20 +83,7 @@ export default function SignupPage() {
         return;
       }
 
-      const loginResult = await signIn("credentials", {
-        email: normalizedEmail,
-        password,
-        redirect: false,
-      });
-
-      if (!loginResult || loginResult.error) {
-        setError(
-          "Your workspace was created, but automatic sign-in failed. Please sign in with your new account.",
-        );
-        return;
-      }
-
-      window.location.href = "/dashboard";
+      window.location.href = `/login?created=1&email=${encodeURIComponent(normalizedEmail)}`;
     } catch {
       setError("Unable to create your account. Please try again.");
     } finally {
