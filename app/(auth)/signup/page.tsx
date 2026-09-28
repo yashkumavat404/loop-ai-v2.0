@@ -52,6 +52,8 @@ export default function SignupPage() {
       const response = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        cache: "no-store",
         body: JSON.stringify({
           name: normalizedName,
           workspaceName: normalizedWorkspace,
@@ -211,7 +213,9 @@ export default function SignupPage() {
               <button
                 type="button"
                 disabled={loading}
-                onClick={() => {
+                aria-busy={loading}
+                onClick={(event) => {
+                  event.preventDefault();
                   void submit();
                 }}
                 className="btn-primary group w-full gap-2 py-2.5 disabled:cursor-not-allowed disabled:opacity-60"
