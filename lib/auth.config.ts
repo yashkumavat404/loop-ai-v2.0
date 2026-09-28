@@ -23,13 +23,18 @@ const authConfig = {
     },
 
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.userId as string;
+      if (
+        session.user &&
+        typeof token.userId === "string" &&
+        typeof token.role === "string" &&
+        typeof token.workspaceId === "string"
+      ) {
+        session.user.id = token.userId;
         session.user.role = token.role as
           | "ADMIN"
           | "ANALYST"
           | "VIEWER";
-        session.user.workspaceId = token.workspaceId as string;
+        session.user.workspaceId = token.workspaceId;
       }
 
       return session;
