@@ -77,33 +77,19 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--background)] px-5 py-10">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-32 -top-32 h-80 w-80 rounded-full bg-brand/10 blur-3xl" />
-        <div className="absolute -bottom-40 -right-32 h-96 w-96 rounded-full bg-brand/10 blur-3xl" />
-      </div>
-
-      <div className="relative w-full max-w-md">
-        <div className="mb-8 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand text-lg font-bold text-white shadow-lg shadow-indigo-500/20">
-            L
-          </div>
-
-          <div className="mt-5 flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
-            <Sparkles size={13} />
-            Customer Intelligence
-          </div>
-
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-ink">
-            Create your LOOP workspace
-          </h1>
-
-          <p className="mt-2 text-sm text-muted">
-            Start turning customer feedback into actionable insight.
-          </p>
-        </div>
-
-        <form onSubmit={submit} className="card overflow-hidden">
+    <main className="relative min-h-screen overflow-hidden bg-[#f5f7fb] text-[#17263a] dark:bg-[#080d14] dark:text-[#eef3f9]">
+      <div className="absolute inset-0 pointer-events-none"><div className="absolute left-[-180px] top-[-180px] h-[420px] w-[420px] rounded-full bg-[#2f6fed]/10 blur-3xl dark:bg-[#2f6fed]/12" /><div className="absolute bottom-[-220px] right-[-160px] h-[480px] w-[480px] rounded-full bg-[#2f6fed]/8 blur-3xl dark:bg-[#2f6fed]/10" /></div>
+      <div className="relative mx-auto grid min-h-screen w-full max-w-6xl items-center gap-12 px-5 py-8 lg:grid-cols-[1fr_440px] lg:px-8">
+        <section className="hidden lg:block">
+          <div className="mb-8 flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#2f6fed] text-lg font-bold text-white">L</div><div><p className="text-sm font-bold">LOOP</p><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8491a3] dark:text-[#8292a8]">Customer intelligence</p></div></div>
+          <p className="max-w-xl text-5xl font-bold leading-[1.05] tracking-[-0.04em]">Build one clear view of what your customers are saying.</p>
+          <p className="mt-6 max-w-lg text-base leading-7 text-[#718096] dark:text-[#9aa8ba]">Create a workspace for feedback, themes, sentiment and AI-assisted customer insight.</p>
+          <div className="mt-10 space-y-3 max-w-lg">{["One workspace for customer voice","AI-assisted classification and themes","Grounded insights from real feedback"].map((x)=><div key={x} className="flex items-center gap-3 rounded-xl border border-[#dfe6ef] bg-white/80 px-4 py-3 text-xs font-semibold shadow-sm backdrop-blur dark:border-[#273447] dark:bg-[#111923]/80"><span className="h-2 w-2 rounded-full bg-[#2f6fed]" />{x}</div>)}</div>
+        </section>
+        <section className="mx-auto w-full max-w-md">
+          <div className="mb-5 flex items-center gap-3 lg:hidden"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#2f6fed] text-lg font-bold text-white">L</div><div><p className="text-sm font-bold">LOOP</p><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8491a3] dark:text-[#8292a8]">Customer intelligence</p></div></div>
+          <div className="mb-4"><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#7c8da3] dark:text-[#8292a8]">Get started</p><h1 className="mt-2 text-3xl font-bold tracking-tight">Create your workspace</h1><p className="mt-2 text-sm text-[#718096] dark:text-[#9aa8ba]">Set up your account and start bringing customer feedback together.</p></div>
+          <form onSubmit={submit} className="card overflow-hidden">
           <div className="border-b border-line bg-surface-soft px-6 py-5">
             <h2 className="font-bold text-ink">Create your account</h2>
             <p className="mt-1 text-xs text-muted">
@@ -262,6 +248,9 @@ export default function SignupPage() {
           AI-powered customer feedback intelligence platform
         </p>
       </div>
+    
+          <p className="mt-5 text-center text-[10px] text-[#8491a3] dark:text-[#8292a8]">LOOP · AI-powered customer feedback intelligence</p>
+        </section>
+      </div>
     </main>
   );
-}
