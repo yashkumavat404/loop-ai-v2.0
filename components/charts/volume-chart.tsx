@@ -52,7 +52,7 @@ export function VolumeChart({ data }: { data: TrendPoint[] }) {
             cursor={{ stroke: "#b9c8db", strokeDasharray: "4 4" }}
             contentStyle={{
               borderRadius: "10px",
-              border: "1px solid #e2e9f1",
+              border: "1px solid var(--border)",
               boxShadow: "0 8px 24px rgba(24,45,75,0.08)",
               fontSize: "11px",
             }}
@@ -63,8 +63,8 @@ export function VolumeChart({ data }: { data: TrendPoint[] }) {
             dataKey="value"
             stroke="#2f6fed"
             strokeWidth={2.5}
-            dot={{ r: 2.5, strokeWidth: 2, fill: "#ffffff", stroke: "#2f6fed" }}
-            activeDot={{ r: 5, strokeWidth: 2, fill: "#ffffff" }}
+            dot={{ r: 2.5, strokeWidth: 2, fill: "var(--surface)", stroke: "#2f6fed" }}
+            activeDot={{ r: 5, strokeWidth: 2, fill: "var(--surface)" }}
           />
         </LineChart>
       </ResponsiveContainer>
