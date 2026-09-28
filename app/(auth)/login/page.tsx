@@ -1,13 +1,8 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
-import {
-  ArrowRight,
-  LockKeyhole,
-  Mail,
-  Sparkles,
-} from "lucide-react";
+import { ArrowRight, LockKeyhole, Mail } from "lucide-react";
 import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
@@ -18,7 +13,6 @@ export default function LoginPage() {
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
     setError("");
     setLoading(true);
 
@@ -43,220 +37,152 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--background)] px-5 py-10">
-      {/* Ambient background */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-32 -top-32 h-80 w-80 rounded-full bg-brand/10 blur-3xl" />
-        <div className="absolute -bottom-40 -right-32 h-96 w-96 rounded-full bg-brand/10 blur-3xl" />
+    <main className="relative min-h-screen overflow-hidden bg-[#f5f7fb] text-[#17263a] dark:bg-[#080d14] dark:text-[#eef3f9]">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -left-40 -top-40 h-[440px] w-[440px] rounded-full bg-[#2f6fed]/10 blur-3xl dark:bg-[#2f6fed]/12" />
+        <div className="absolute -bottom-48 -right-40 h-[500px] w-[500px] rounded-full bg-[#2f6fed]/8 blur-3xl dark:bg-[#2f6fed]/10" />
       </div>
 
-      <div className="relative w-full max-w-md">
-        {/* Brand */}
-        <div className="mb-8 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand text-lg font-bold text-white shadow-lg shadow-indigo-500/20">
-            L
-          </div>
-
-          <div className="mt-5 flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
-            <Sparkles size={13} />
-            Customer Intelligence
-          </div>
-
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-ink">
-            Welcome to LOOP
-          </h1>
-
-          <p className="mt-2 text-sm text-muted">
-            Turn customer feedback into actionable insight.
-          </p>
-        </div>
-
-        {/* Login card */}
-        <form
-          onSubmit={submit}
-          className="card overflow-hidden"
-        >
-          <div className="border-b border-line bg-surface-soft px-6 py-5">
-            <h2 className="font-bold text-ink">
-              Sign in to your workspace
-            </h2>
-
-            <p className="mt-1 text-xs text-muted">
-              Enter your account credentials to continue.
-            </p>
-          </div>
-
-          <div className="space-y-5 p-6">
-            {/* Email */}
-            <div>
-              <label
-                htmlFor="email"
-                className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-muted"
-              >
-                Email
-              </label>
-
-              <div className="relative">
-                <Mail
-                  size={17}
-                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted"
-                />
-
-                <input
-                  id="email"
-                  className="input pl-10"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  autoComplete="email"
-                  placeholder="you@company.com"
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div>
-              <label
-                htmlFor="password"
-                className="mb-2 block<main className="relative min-h-screen overflow-hidden bg-[#f5f7fb] text-[#17263a] dark:bg-[#080d14] dark:text-[#eef3f9]">
-      <div className="absolute inset-0 pointer-events-none"><div className="absolute left-[-180px] top-[-180px] h-[420px] w-[420px] rounded-full bg-[#2f6fed]/10 blur-3xl dark:bg-[#2f6fed]/12" /><div className="absolute bottom-[-220px] right-[-160px] h-[480px] w-[480px] rounded-full bg-[#2f6fed]/8 blur-3xl dark:bg-[#2f6fed]/10" /></div>
       <div className="relative mx-auto grid min-h-screen w-full max-w-6xl items-center gap-12 px-5 py-10 lg:grid-cols-[1fr_420px] lg:px-8">
         <section className="hidden lg:block">
-          <div className="mb-8 flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#2f6fed] text-lg font-bold text-white">L</div><div><p className="text-sm font-bold">LOOP</p><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8491a3] dark:text-[#8292a8]">Customer intelligence</p></div></div>
-          <p className="max-w-xl text-5xl font-bold leading-[1.05] tracking-[-0.04em]">Understand the voice behind every piece of feedback.</p>
-          <p className="mt-6 max-w-lg text-base leading-7 text-[#718096] dark:text-[#9aa8ba]">Bring customer feedback into one workspace, surface the themes that matter, and turn raw comments into clear product insight.</p>
-          <div className="mt-10 grid max-w-lg grid-cols-3 gap-3">{["Feedback","Themes","Insights"].map((item,i)=><div key={item} className="rounded-xl border border-[#dfe6ef] bg-white/80 px-4 py-4 shadow-sm backdrop-blur dark:border-[#273447] dark:bg-[#111923]/80"><div className="mb-3 h-1.5 w-10 rounded-full bg-[#2f6fed]" /><p className="text-xs font-bold">{item}</p><p className="mt-1 text-[10px] leading-4 text-[#8491a3] dark:text-[#8292a8]">{["Capture customer voice","Find recurring patterns","Act on what matters"][i]}</p></div>)}</div>
+          <div className="mb-9 flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#2f6fed] text-lg font-bold text-white shadow-[0_8px_24px_rgba(47,111,237,0.25)]">
+              L
+            </div>
+            <div>
+              <p className="text-sm font-bold tracking-tight">LOOP</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8491a3] dark:text-[#8292a8]">
+                Customer intelligence
+              </p>
+            </div>
+          </div>
+
+          <p className="max-w-xl text-5xl font-bold leading-[1.05] tracking-[-0.04em]">
+            Understand the voice behind every piece of feedback.
+          </p>
+
+          <p className="mt-6 max-w-lg text-base leading-7 text-[#718096] dark:text-[#9aa8ba]">
+            Bring customer feedback into one workspace, surface the themes
+            that matter, and turn raw comments into clear product insight.
+          </p>
+
+          <div className="mt-10 grid max-w-lg grid-cols-3 gap-3">
+            {[
+              ["Feedback", "Capture customer voice"],
+              ["Themes", "Find recurring patterns"],
+              ["Insights", "Act on what matters"],
+            ].map(([title, description]) => (
+              <div
+                key={title}
+                className="rounded-xl border border-[#dfe6ef] bg-white/80 px-4 py-4 shadow-sm backdrop-blur dark:border-[#273447] dark:bg-[#111923]/80"
+              >
+                <div className="mb-3 h-1.5 w-10 rounded-full bg-[#2f6fed]" />
+                <p className="text-xs font-bold">{title}</p>
+                <p className="mt-1 text-[10px] leading-4 text-[#8491a3] dark:text-[#8292a8]">
+                  {description}
+                </p>
+              </div>
+            ))}
+          </div>
         </section>
+
         <section className="mx-auto w-full max-w-md">
-          <div className="mb-6 flex items-center gap-3 lg:hidden"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#2f6fed] text-lg font-bold text-white">L</div><div><p className="text-sm font-bold">LOOP</p><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8491a3] dark:text-[#8292a8]">Customer intelligence</p></div></div>
-          <div className="mb-5"><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#7c8da3] dark:text-[#8292a8]">Workspace access</p><h1 className="mt-2 text-3xl font-bold tracking-tight">Welcome back</h1><p className="mt-2 text-sm text-[#718096] dark:text-[#9aa8ba]">Sign in to continue to your feedback workspace.</p></div>
+          <div className="mb-6 flex items-center gap-3 lg:hidden">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#2f6fed] text-lg font-bold text-white">
+              L
+            </div>
+            <div>
+              <p className="text-sm font-bold">LOOP</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8491a3] dark:text-[#8292a8]">
+                Customer intelligence
+              </p>
+            </div>
+          </div>
+
+          <div className="mb-5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#7c8da3] dark:text-[#8292a8]">
+              Workspace access
+            </p>
+            <h1 className="mt-2 text-3xl font-bold tracking-tight">
+              Welcome back
+            </h1>
+            <p className="mt-2 text-sm text-[#718096] dark:text-[#9aa8ba]">
+              Sign in to continue to your feedback workspace.
+            </p>
+          </div>
+
           <form
-          onSubmit={submit}
-          className="card overflow-hidden"
-        >
-          <div className="border-b border-line bg-surface-soft px-6 py-5">
-            <h2 className="font-bold text-ink">
-              Sign in to your workspace
-            </h2>
-
-            <p className="mt-1 text-xs text-muted">
-              Enter your account credentials to continue.
-            </p>
-          </div>
-
-          <div className="space-y-5 p-6">
-            {/* Email */}
-            <div>
-              <label
-                htmlFor="email"
-                className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-muted"
-              >
-                Email
-              </label>
-
-              <div className="relative">
-                <Mail
-                  size={17}
-                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted"
-                />
-
-                <input
-                  id="email"
-                  className="input pl-10"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  autoComplete="email"
-                  placeholder="you@company.com"
-                />
-              </div>
+            onSubmit={submit}
+            className="overflow-hidden rounded-2xl border border-[#dfe6ef] bg-white shadow-[0_12px_35px_rgba(24,45,75,0.07)] dark:border-[#273447] dark:bg-[#111923] dark:shadow-[0_14px_40px_rgba(0,0,0,0.25)]"
+          >
+            <div className="border-b border-[#edf1f5] bg-[#fafbfd] px-6 py-5 dark:border-[#273447] dark:bg-[#0d141e]">
+              <h2 className="font-bold">Sign in to your workspace</h2>
+              <p className="mt-1 text-xs text-[#8491a3] dark:text-[#8d9aad]">
+                Enter your account credentials to continue.
+              </p>
             </div>
 
-            {/* Password */}
-            <div>
-              <label
-                htmlFor="password"
-                className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-muted"
-              >
-                Password
-              </label>
-
-              <div className="relative">
-                <LockKeyhole
-                  size={17}
-                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted"
-                />
-
-                <input
-                  id="password"
-                  className="input pl-10"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete="current-password"
-                  placeholder="Enter your password"
-                />
+            <div className="space-y-5 p-6">
+              <div>
+                <label htmlFor="email" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.1em] text-[#7c8da3] dark:text-[#8292a8]">
+                  Email
+                </label>
+                <div className="relative">
+                  <Mail size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8491a3] dark:text-[#8292a8]" />
+                  <input id="email" className="input pl-10" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" placeholder="you@company.com" />
+                </div>
               </div>
-            </div>
 
-            {/* Error */}
-            {error && (
-              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-400">
-                {error}
+              <div>
+                <label htmlFor="password" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.1em] text-[#7c8da3] dark:text-[#8292a8]">
+                  Password
+                </label>
+                <div className="relative">
+                  <LockKeyhole size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8491a3] dark:text-[#8292a8]" />
+                  <input id="password" className="input pl-10" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" placeholder="Enter your password" />
+                </div>
               </div>
-            )}
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary group w-full gap-2 py-2.5 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {loading ? (
-                <>
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  Signing in...
-                </>
-              ) : (
-                <>
-                  Sign in
-                  <ArrowRight
-                    size={16}
-                    className="transition-transform duration-200 group-hover:translate-x-0.5"
-                  />
-                </>
+              {error && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-400">
+                  {error}
+                </div>
               )}
-            </button>
 
-            <div className="flex items-center gap-3">
-              <div className="h-px flex-1 bg-line" />
-              <span className="text-[11px] font-medium text-muted">
-                LOOP
-              </span>
-              <div className="h-px flex-1 bg-line" />
+              <button type="submit" disabled={loading} className="btn-primary group w-full gap-2 py-2.5 disabled:cursor-not-allowed disabled:opacity-60">
+                {loading ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    Sign in
+                    <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5" />
+                  </>
+                )}
+              </button>
+
+              <div className="flex items-center gap-3">
+                <div className="h-px flex-1 bg-[#e5eaf0] dark:bg-[#293647]" />
+                <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8491a3] dark:text-[#8292a8]">LOOP</span>
+                <div className="h-px flex-1 bg-[#e5eaf0] dark:bg-[#293647]" />
+              </div>
+
+              <p className="text-center text-sm text-[#718096] dark:text-[#9aa8ba]">
+                Don&apos;t have an account?{" "}
+                <Link className="font-semibold text-[#2f6fed] hover:text-[#245bd0]" href="/signup">
+                  Create one
+                </Link>
+              </p>
             </div>
+          </form>
 
-            <p className="text-center text-sm text-muted">
-              Don&apos;t have an account?{" "}
-              <Link
-                className="font-semibold text-brand transition-colors hover:text-[var(--brand-hover)]"
-                href="/signup"
-              >
-                Create one
-              </Link>
-            </p>
-          </div>
-        </form>
-
-        <p className="mt-6 text-center text-[11px] text-muted">
-          AI-powered customer feedback intelligence platform
-        </p>
-      </div>
-    
-          <p className="mt-5 text-center text-[10px] text-[#8491a3] dark:text-[#8292a8]">LOOP · AI-powered customer feedback intelligence</p>
+          <p className="mt-5 text-center text-[10px] text-[#8491a3] dark:text-[#8292a8]">
+            LOOP · AI-powered customer feedback intelligence
+          </p>
         </section>
       </div>
     </main>
+  );
+}
