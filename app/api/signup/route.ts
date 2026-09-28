@@ -26,7 +26,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, password, workspaceName } = parsed.data;
+    const { name, password, workspaceName } = parsed.data;
+    const email = parsed.data.email.toLowerCase();
 
     const existingUser = await db.user.findUnique({
       where: {
