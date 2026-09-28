@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import {
   ArrowRight,
   Building2,
@@ -159,13 +159,7 @@ export default function SignupPage() {
             </p>
           </div>
 
-          <form
-            noValidate
-            onSubmit={submit}
-            onInvalid={(event) => {
-              event.preventDefault();
-              setError("Please complete all required fields.");
-            }}
+          <div
             className="overflow-hidden rounded-2xl border border-[#dfe6ef] bg-white shadow-[0_12px_35px_rgba(24,45,75,0.07)] dark:border-[#273447] dark:bg-[#111923] dark:shadow-[0_14px_40px_rgba(0,0,0,0.25)]">
             <div className="border-b border-[#edf1f5] bg-[#fafbfd] px-6 py-5 dark:border-[#273447] dark:bg-[#0d141e]">
               <h2 className="font-bold">Create your account</h2>
@@ -248,7 +242,7 @@ export default function SignupPage() {
                 </Link>
               </p>
             </div>
-          </form>
+          </div>
 
           <p className="mt-5 text-center text-[10px] text-[#8491a3] dark:text-[#8292a8]">
             LOOP · AI-powered customer feedback intelligence
