@@ -1,12 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { ArrowRight, LockKeyhole, Mail } from "lucide-react";
 import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const searchParams = useSearchParams();
+  const created = searchParams.get("created") === "1";
+  const createdEmail = searchParams.get("email") ?? "";
+
+  const [email, setEmail] = useState(createdEmail);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -123,6 +128,11 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-5 p-6">
+              {created && (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-400">
+                  Workspace created successfully. Sign in to continue.
+                </div>
+              )}
               <div>
                 <label htmlFor="email" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.1em] text-[#7c8da3] dark:text-[#8292a8]">
                   Email
