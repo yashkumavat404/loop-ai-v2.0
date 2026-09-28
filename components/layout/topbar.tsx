@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Bell,
   ChevronDown,
@@ -31,39 +31,61 @@ export function Topbar({
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
+  const notificationRef = useRef<HTMLDivElement>(null);
+  const accountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(target)
+      ) {
+        setNotificationsOpen(false);
+      }
+
+      if (accountRef.current && !accountRef.current.contains(target)) {
+        setAccountOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
 
   const displayName = user.name || user.email?.split("@")[0] || "User";
   const initial = displayName.charAt(0).toUpperCase();
 
   return (
-    <header className="sticky top-0 z-30 flex h-[76px] shrink-0 items-center justify-between border-b border-[#e7edf4] bg-white/95 px-4 backdrop-blur sm:px-7">
+    <header className="sticky top-0 z-30 flex h-[76px] shrink-0 items-center justify-between border-b border-[#e1e7ef] bg-white/95 px-4 backdrop-blur dark:border-[#263242] dark:bg-[#0b111a]/95 sm:px-7">
       <div className="flex min-w-0 flex-1 items-center gap-4">
         <button
           type="button"
           onClick={onMenuOpen}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 lg:hidden"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#66758a] hover:bg-[#f0f3f7] dark:text-[#aab6c5] dark:hover:bg-[#182230] lg:hidden"
           aria-label="Open navigation"
         >
           <Menu className="h-5 w-5" />
         </button>
 
-        <div className="hidden max-w-[650px] flex-1 items-center gap-3 rounded-xl border border-[#e2e9f1] bg-[#f7f9fc] px-4 py-2.5 md:flex">
-          <Search className="h-4 w-4 text-slate-400" />
-          <span className="text-sm text-slate-400">
+        <div className="hidden max-w-[650px] flex-1 items-center gap-3 rounded-xl border border-[#e2e9f1] bg-[#f7f9fc] px-4 py-2.5 dark:border-[#263242] dark:bg-[#141c27] md:flex">
+          <Search className="h-4 w-4 text-[#8a96a7] dark:text-[#738197]" />
+          <span className="text-sm text-[#8a96a7] dark:text-[#738197]">
             Search feedback, themes or ask a question...
           </span>
-          <span className="ml-auto hidden rounded-md border border-[#dbe3ec] bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-400 lg:inline">
+          <span className="ml-auto hidden rounded-md border border-[#dbe3ec] bg-white px-2 py-0.5 text-[10px] font-semibold text-[#8a96a7] dark:border-[#303d4f] dark:bg-[#0f1722] dark:text-[#738197] lg:inline">
             /
           </span>
         </div>
 
         <div className="hidden xl:block">
-          <p className="text-sm font-semibold text-[#16263a]">
+          <p className="text-sm font-semibold text-[#16263a] dark:text-[#eef3f9]">
             Customer Feedback Intelligence
           </p>
-          <p className="text-[11px] text-slate-400">
+          <p className="text-[11px] text-[#8a96a7] dark:text-[#738197]">
             Understand what your customers are saying
           </p>
         </div>
@@ -73,20 +95,24 @@ export function Topbar({
         <button
           type="button"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#e2e9f1] bg-white text-slate-500 transition hover:bg-slate-50"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#e2e9f1] bg-white text-[#66758a] transition hover:bg-[#f7f9fc] dark:border-[#2b394b] dark:bg-[#141c27] dark:text-[#b8c4d3] dark:hover:bg-[#1a2532]"
           aria-label="Toggle theme"
         >
-          {mounted && theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          {mounted && theme === "dark" ? (
+            <Sun className="h-4 w-4" />
+          ) : (
+            <Moon className="h-4 w-4" />
+          )}
         </button>
 
-        <div className="relative">
+        <div ref={notificationRef} className="relative">
           <button
             type="button"
             onClick={() => {
               setNotificationsOpen((v) => !v);
               setAccountOpen(false);
             }}
-            className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#e2e9f1] bg-white text-slate-500 hover:bg-slate-50"
+            className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#e2e9f1] bg-white text-[#66758a] hover:bg-[#f7f9fc] dark:border-[#2b394b] dark:bg-[#141c27] dark:text-[#b8c4d3] dark:hover:bg-[#1a2532]"
             aria-label="Notifications"
           >
             <Bell className="h-4 w-4" />
@@ -94,50 +120,64 @@ export function Topbar({
           </button>
 
           {notificationsOpen && (
-            <div className="absolute right-0 top-12 w-72 rounded-xl border border-line bg-white p-3 shadow-xl">
-              <p className="text-sm font-semibold text-ink">Notifications</p>
-              <div className="mt-3 rounded-lg bg-surface p-3">
-                <p className="text-xs font-medium text-ink">You're all caught up</p>
-                <p className="mt-1 text-xs text-muted">No new notifications right now.</p>
+            <div className="absolute right-0 top-12 w-72 rounded-xl border border-[#e1e7ef] bg-white p-3 shadow-xl dark:border-[#2b394b] dark:bg-[#111923]">
+              <p className="text-sm font-semibold text-[#17263a] dark:text-[#eef3f9]">
+                Notifications
+              </p>
+              <div className="mt-3 rounded-lg bg-[#f6f8fb] p-3 dark:bg-[#182230]">
+                <p className="text-xs font-medium text-[#25354a] dark:text-[#e5ebf2]">
+                  You&apos;re all caught up
+                </p>
+                <p className="mt-1 text-xs text-[#8491a3] dark:text-[#8d9aad]">
+                  No new notifications right now.
+                </p>
               </div>
             </div>
           )}
         </div>
 
-        <div className="relative">
+        <div ref={accountRef} className="relative">
           <button
             type="button"
             onClick={() => {
               setAccountOpen((v) => !v);
               setNotificationsOpen(false);
             }}
-            className="flex items-center gap-2 rounded-xl border border-[#e2e9f1] bg-white px-2 py-1.5 transition hover:bg-slate-50"
+            className="flex items-center gap-2 rounded-xl border border-[#e2e9f1] bg-white px-2 py-1.5 transition hover:bg-[#f7f9fc] dark:border-[#2b394b] dark:bg-[#141c27] dark:hover:bg-[#1a2532]"
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#2f6fed] text-sm font-bold text-white">
               {initial}
             </div>
             <div className="hidden text-left sm:block">
-              <p className="max-w-32 truncate text-xs font-semibold text-[#16263a]">{displayName}</p>
-              <p className="text-[10px] uppercase tracking-wide text-slate-400">{user.role || "USER"}</p>
+              <p className="max-w-32 truncate text-xs font-semibold text-[#16263a] dark:text-[#eef3f9]">
+                {displayName}
+              </p>
+              <p className="text-[10px] uppercase tracking-wide text-[#8a96a7] dark:text-[#738197]">
+                {user.role || "USER"}
+              </p>
             </div>
-            <ChevronDown className="hidden h-4 w-4 text-slate-400 sm:block" />
+            <ChevronDown className="hidden h-4 w-4 text-[#8a96a7] dark:text-[#738197] sm:block" />
           </button>
 
           {accountOpen && (
-            <div className="absolute right-0 top-12 w-56 rounded-xl border border-line bg-white p-2 shadow-xl">
-              <div className="border-b border-line px-3 py-2">
-                <p className="text-sm font-semibold text-ink">{displayName}</p>
-                <p className="mt-0.5 truncate text-xs text-muted">{user.email}</p>
+            <div className="absolute right-0 top-12 w-56 rounded-xl border border-[#e1e7ef] bg-white p-2 shadow-xl dark:border-[#2b394b] dark:bg-[#111923]">
+              <div className="border-b border-[#e8edf3] px-3 py-2 dark:border-[#293647]">
+                <p className="text-sm font-semibold text-[#17263a] dark:text-[#eef3f9]">
+                  {displayName}
+                </p>
+                <p className="mt-0.5 truncate text-xs text-[#8491a3] dark:text-[#8d9aad]">
+                  {user.email}
+                </p>
               </div>
               <div className="mt-2">
-                <div className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted">
+                <div className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-[#64748b] dark:text-[#aab6c5]">
                   <UserRound className="h-4 w-4" />
                   <span>{user.role || "USER"}</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => signOut({ callbackUrl: "/login" })}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 transition hover:bg-red-50"
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 transition hover:bg-red-50 dark:hover:bg-red-950/30"
                 >
                   <LogOut className="h-4 w-4" />
                   <span>Sign out</span>
