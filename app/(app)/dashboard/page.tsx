@@ -39,30 +39,30 @@ function StatCard({
 }) {
   const styles = {
     blue: {
-      icon: "bg-[#eef4ff] text-[#2f6fed]",
+      icon: "bg-[#eef4ff] text-[#2f6fed] dark:bg-[#162b4a] dark:text-[#76a9ff]",
       mini: "from-[#2f6fed]/5",
     },
     red: {
-      icon: "bg-[#fff1f1] text-[#e05252]",
+      icon: "bg-[#fff1f1] text-[#e05252] dark:bg-[#3a1c24] dark:text-[#ff8b96]",
       mini: "from-[#e05252]/5",
     },
     amber: {
-      icon: "bg-[#fff8e8] text-[#e6a62d]",
+      icon: "bg-[#fff8e8] text-[#e6a62d] dark:bg-[#3b2d12] dark:text-[#f6c85f]",
       mini: "from-[#e6a62d]/5",
     },
   }[tone];
 
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-[#e5ebf2] bg-white p-5 shadow-[0_3px_16px_rgba(24,45,75,0.045)]">
+    <section className="relative overflow-hidden rounded-2xl border border-[#e5ebf2] dark:border-[#273447] bg-white p-5 shadow-[0_3px_16px_rgba(24,45,75,0.045)] dark:border-[#273447] dark:bg-[#111923] dark:shadow-[0_8px_28px_rgba(0,0,0,0.24)]">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.13em] text-[#718096]">
+          <p className="text-[11px] font-bold uppercase tracking-[0.13em] text-[#718096] dark:text-[#8d9aad]">
             {label}
           </p>
-          <p className="mt-2 text-[32px] font-bold leading-none tracking-tight text-[#142238]">
+          <p className="mt-2 text-[32px] font-bold leading-none tracking-tight text-[#142238] dark:text-[#f2f6fb]">
             {value}
           </p>
-          <p className="mt-2 text-[11px] font-medium text-[#8390a3]">{helper}</p>
+          <p className="mt-2 text-[11px] font-medium text-[#8390a3] dark:text-[#8d9aad]">{helper}</p>
         </div>
         <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${styles.icon}`}>
           <Icon size={20} />
@@ -74,7 +74,7 @@ function StatCard({
         {[8, 14, 20, 12, 24, 17, 22].map((height, index) => (
           <span
             key={index}
-            className="w-1.5 rounded-full bg-[#cdd8e6]"
+            className="w-1.5 rounded-full bg-[#cdd8e6] dark:bg-[#344357]"
             style={{ height }}
           />
         ))}
@@ -99,15 +99,15 @@ function Panel({
   className?: string;
 }) {
   return (
-    <section className={`overflow-hidden rounded-2xl border border-[#e5ebf2] bg-white shadow-[0_3px_16px_rgba(24,45,75,0.045)] ${className}`}>
-      <div className="flex items-center justify-between gap-4 border-b border-[#edf1f5] px-5 py-4">
+    <section className={`overflow-hidden rounded-2xl border border-[#e5ebf2] dark:border-[#273447] bg-white shadow-[0_3px_16px_rgba(24,45,75,0.045)] ${className}`}>
+      <div className="flex items-center justify-between gap-4 border-b border-[#edf1f5] dark:border-[#273447] px-5 py-4">
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#f0f5ff] text-[#2f6fed]">
             <Icon size={18} />
           </div>
           <div className="min-w-0">
-            <h2 className="text-[14px] font-bold text-[#17263a]">{title}</h2>
-            <p className="mt-0.5 text-[11px] text-[#8491a3]">{subtitle}</p>
+            <h2 className="text-[14px] font-bold text-[#17263a] dark:text-[#eef3f9]">{title}</h2>
+            <p className="mt-0.5 text-[11px] text-[#8491a3] dark:text-[#8d9aad]">{subtitle}</p>
           </div>
         </div>
         {action}
@@ -195,16 +195,16 @@ export default function DashboardPage() {
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#8090a4]">
             Workspace overview
           </p>
-          <h1 className="text-[32px] font-bold tracking-tight text-[#142238] sm:text-[38px]">
+          <h1 className="text-[32px] font-bold tracking-tight text-[#142238] dark:text-[#f2f6fb] sm:text-[38px]">
             Good afternoon, <span className="text-[#2f6fed]">Admin</span>
           </h1>
-          <p className="mt-1.5 text-[15px] text-[#64748b]">
+          <p className="mt-1.5 text-[15px] text-[#64748b] dark:text-[#9aa8ba]">
             Here&apos;s what your customers are saying across your workspace.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="hidden items-center gap-2 rounded-xl border border-[#e2e9f1] bg-white px-3 py-2.5 text-xs font-medium text-[#66758a] shadow-sm sm:flex">
+          <div className="hidden items-center gap-2 rounded-xl border border-[#e2e9f1] dark:border-[#2b394b] bg-white px-3 py-2.5 text-xs font-medium text-[#66758a] shadow-sm sm:flex">
             <CalendarDays size={15} className="text-[#2f6fed]" />
             Last 30 days
             <span className="text-[#b0bac7]">•</span>
@@ -215,12 +215,12 @@ export default function DashboardPage() {
             href="/ask"
             className="group flex items-center gap-3 rounded-xl border border-[#dce7fb] bg-[#f1f6ff] px-4 py-2.5 transition hover:border-[#c9dafa] hover:bg-[#eaf2ff]"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[#2f6fed] shadow-sm">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[#2f6fed] dark:bg-[#182230] dark:text-[#76a9ff] shadow-sm">
               <Sparkles size={16} />
             </span>
             <span className="text-left">
-              <span className="block text-xs font-bold text-[#17263a]">Ask LOOP</span>
-              <span className="block text-[10px] text-[#718096]">Get instant insights</span>
+              <span className="block text-xs font-bold text-[#17263a] dark:text-[#eef3f9]">Ask LOOP</span>
+              <span className="block text-[10px] text-[#718096] dark:text-[#8d9aad]">Get instant insights</span>
             </span>
             <ArrowRight size={16} className="text-[#2f6fed] transition group-hover:translate-x-0.5" />
           </a>
@@ -263,7 +263,7 @@ export default function DashboardPage() {
           subtitle="Incoming feedback over time"
           icon={MessageCircle}
           action={
-            <span className="rounded-lg border border-[#e2e9f1] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#69788c]">
+            <span className="rounded-lg border border-[#e2e9f1] dark:border-[#2b394b] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#69788c] dark:text-[#9aa8ba]">
               Last 30 days
             </span>
           }
@@ -276,7 +276,7 @@ export default function DashboardPage() {
           subtitle="Positive, neutral and negative feedback"
           icon={BarChart3}
           action={
-            <span className="rounded-lg border border-[#e2e9f1] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#69788c]">
+            <span className="rounded-lg border border-[#e2e9f1] dark:border-[#2b394b] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#69788c] dark:text-[#9aa8ba]">
               Current
             </span>
           }
@@ -291,7 +291,7 @@ export default function DashboardPage() {
           subtitle="Most frequently mentioned customer themes"
           icon={BarChart3}
           action={
-            <span className="rounded-lg border border-[#e2e9f1] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#69788c]">
+            <span className="rounded-lg border border-[#e2e9f1] dark:border-[#2b394b] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#69788c] dark:text-[#9aa8ba]">
               Top {Math.min(themes.length, 7)}
             </span>
           }
@@ -313,7 +313,7 @@ export default function DashboardPage() {
             {loading ? (
               <div className="space-y-3 py-2">
                 {[1, 2, 3, 4, 5].map((item) => (
-                  <div key={item} className="h-12 animate-pulse rounded-lg bg-[#f3f6fa]" />
+                  <div key={item} className="h-12 animate-pulse rounded-lg bg-[#f3f6fa] dark:bg-[#182230]" />
                 ))}
               </div>
             ) : recent.length ? (
@@ -323,25 +323,25 @@ export default function DashboardPage() {
                   href={`/inbox/${item.id}`}
                   className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
                 >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#f1f5f9]">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#f1f5f9] dark:bg-[#1a2532]">
                     <SentimentIcon sentiment={item.sentiment} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-semibold text-[#25354a]">
+                    <p className="truncate text-xs font-semibold text-[#25354a] dark:text-[#e5ebf2]">
                       {item.text}
                     </p>
-                    <p className="mt-1 text-[10px] text-[#8a96a7]">
+                    <p className="mt-1 text-[10px] text-[#8a96a7] dark:text-[#8d9aad]">
                       {item.channel.replace("_", " ")} • {formatDate(item.createdAt)}
                     </p>
                   </div>
                   {item.themes?.[0] && typeof item.themes[0] !== "string" && (
-                    <span className="hidden max-w-[130px] truncate rounded-full bg-[#eef4ff] px-2.5 py-1 text-[9px] font-semibold text-[#356dc7] sm:block">
+                    <span className="hidden max-w-[130px] truncate rounded-full bg-[#eef4ff] dark:bg-[#162b4a] px-2.5 py-1 text-[9px] font-semibold text-[#356dc7] dark:text-[#8db8ff] sm:block">
                       {item.themes[0].name}
                     </span>
                   )}
                 </a>
               ))            ) : (
-              <div className="py-10 text-center text-sm text-[#8491a3]">
+              <div className="py-10 text-center text-sm text-[#8491a3] dark:text-[#8d9aad]">
                 No feedback yet.
               </div>
             )}
