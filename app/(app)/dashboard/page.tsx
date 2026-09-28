@@ -1,27 +1,30 @@
-﻿"use client";
+"use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
-  ArrowUpRight,
+  ArrowRight,
   BarChart3,
+  CalendarDays,
   MessageCircle,
   MessageSquare,
-  TrendingDown,
+  Smile,
+  Sparkles,
+  ThumbsDown,
 } from "lucide-react";
 
-import { PageHeader } from "@/components/ui/page-header";
 import { VolumeChart } from "@/components/charts/volume-chart";
 import { SentimentChart } from "@/components/charts/sentiment-chart";
 import { ThemeBarChart } from "@/components/charts/theme-bar-chart";
 import { api } from "@/lib/api";
 import type {
   DashboardStats,
+  Feedback,
   SentimentPoint,
   Theme,
   TrendPoint,
 } from "@/lib/types";
 
-function DashboardStat({
+function StatCard({
   label,
   value,
   helper,
@@ -32,100 +35,103 @@ function DashboardStat({
   value: string | number;
   helper: string;
   icon: typeof MessageSquare;
-  tone: "indigo" | "rose" | "amber";
+  tone: "blue" | "red" | "amber";
 }) {
-  const tones = {
-    indigo: {
-      icon: "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400",
-      glow: "from-indigo-500/10",
+  const styles = {
+    blue: {
+      icon: "bg-[#eef4ff] text-[#2f6fed]",
+      mini: "from-[#2f6fed]/5",
     },
-    rose: {
-      icon: "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400",
-      glow: "from-rose-500/10",
+    red: {
+      icon: "bg-[#fff1f1] text-[#e05252]",
+      mini: "from-[#e05252]/5",
     },
     amber: {
-      icon: "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400",
-      glow: "from-amber-500/10",
+      icon: "bg-[#fff8e8] text-[#e6a62d]",
+      mini: "from-[#e6a62d]/5",
     },
-  };
+  }[tone];
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-line bg-white p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:bg-[#0f141d]">
-      <div
-        className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${tones[tone].glow} to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100`}
-      />
-
-      <div className="relative flex items-start justify-between">
+    <section className="relative overflow-hidden rounded-2xl border border-[#e5ebf2] bg-white p-5 shadow-[0_3px_16px_rgba(24,45,75,0.045)]">
+      <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+          <p className="text-[11px] font-bold uppercase tracking-[0.13em] text-[#718096]">
             {label}
           </p>
-
-          <p className="mt-3 text-3xl font-bold tracking-tight text-ink">
+          <p className="mt-2 text-[32px] font-bold leading-none tracking-tight text-[#142238]">
             {value}
           </p>
-
-          <p className="mt-1.5 text-xs text-muted">{helper}</p>
+          <p className="mt-2 text-[11px] font-medium text-[#8390a3]">{helper}</p>
         </div>
-
-        <div
-          className={`flex h-11 w-11 items-center justify-center rounded-xl ${tones[tone].icon}`}
-        >
-          <Icon className="h-5 w-5" />
+        <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${styles.icon}`}>
+          <Icon size={20} />
         </div>
       </div>
-    </div>
+
+      <div className={`pointer-events-none absolute bottom-0 right-0 h-16 w-40 bg-gradient-to-tl ${styles.mini} to-transparent`} />
+      <div className="absolute bottom-4 right-5 flex items-end gap-1 opacity-60">
+        {[8, 14, 20, 12, 24, 17, 22].map((height, index) => (
+          <span
+            key={index}
+            className="w-1.5 rounded-full bg-[#cdd8e6]"
+            style={{ height }}
+          />
+        ))}
+      </div>
+    </section>
   );
 }
 
-function ChartCard({
+function Panel({
   title,
-  description,
+  subtitle,
   icon: Icon,
-  iconClassName,
-  badge,
+  action,
   children,
   className = "",
 }: {
   title: string;
-  description: string;
+  subtitle: string;
   icon: typeof MessageCircle;
-  iconClassName: string;
-  badge: string;
+  action?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
 }) {
   return (
-    <section
-      className={`group overflow-hidden rounded-2xl border border-line bg-white shadow-card transition-all duration-300 hover:shadow-lg dark:bg-[#0f141d] ${className}`}
-    >
-      <div className="flex items-start justify-between gap-4 border-b border-line px-5 py-4">
+    <section className={`overflow-hidden rounded-2xl border border-[#e5ebf2] bg-white shadow-[0_3px_16px_rgba(24,45,75,0.045)] ${className}`}>
+      <div className="flex items-center justify-between gap-4 border-b border-[#edf1f5] px-5 py-4">
         <div className="flex min-w-0 items-center gap-3">
-          <div
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${iconClassName}`}
-          >
-            <Icon className="h-[18px] w-[18px]" />
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#f0f5ff] text-[#2f6fed]">
+            <Icon size={18} />
           </div>
-
           <div className="min-w-0">
-            <h2 className="truncate text-sm font-bold text-ink">
-              {title}
-            </h2>
-
-            <p className="mt-1 text-xs text-muted">
-              {description}
-            </p>
+            <h2 className="text-[14px] font-bold text-[#17263a]">{title}</h2>
+            <p className="mt-0.5 text-[11px] text-[#8491a3]">{subtitle}</p>
           </div>
         </div>
-
-        <span className="shrink-0 rounded-full border border-line bg-surface px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-muted">
-          {badge}
-        </span>
+        {action}
       </div>
-
-      <div className="p-5">{children}</div>
+      <div className="p-4 sm:p-5">{children}</div>
     </section>
   );
+}
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function SentimentIcon({ sentiment }: { sentiment: Feedback["sentiment"] }) {
+  if (sentiment === "NEG") {
+    return <ThumbsDown size={15} className="text-[#e05252]" />;
+  }
+  if (sentiment === "POS") {
+    return <Smile size={15} className="text-[#2f9d70]" />;
+  }
+  return <MessageCircle size={15} className="text-[#6d7b8d]" />;
 }
 
 export default function DashboardPage() {
@@ -133,6 +139,7 @@ export default function DashboardPage() {
   const [volume, setVolume] = useState<TrendPoint[]>([]);
   const [sentiment, setSentiment] = useState<SentimentPoint[]>([]);
   const [themes, setThemes] = useState<Theme[]>([]);
+  const [recent, setRecent] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -140,32 +147,29 @@ export default function DashboardPage() {
     async function loadDashboard() {
       setLoading(true);
       setError("");
-
       try {
-        const [
-          dashboardStats,
-          volumeData,
-          sentimentData,
-          themeData,
-        ] = await Promise.all([
-          api.getDashboardStats(),
-          api.getVolumeTrend(),
-          api.getSentimentTrend(),
-          api.getTopThemes(),
-        ]);
+        const params = new URLSearchParams({
+          page: "1",
+          pageSize: "5",
+        });
+
+        const [dashboardStats, volumeData, sentimentData, themeData, feedback] =
+          await Promise.all([
+            api.getDashboardStats(),
+            api.getVolumeTrend(),
+            api.getSentimentTrend(),
+            api.getTopThemes(),
+            api.getFeedback(params),
+          ]);
 
         setStats(dashboardStats);
         setVolume(volumeData);
         setSentiment(sentimentData as unknown as SentimentPoint[]);
         setThemes(themeData);
+        setRecent(feedback.items);
       } catch (err) {
         console.error("Failed to load dashboard:", err);
-
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Failed to load dashboard",
-        );
+        setError(err instanceof Error ? err.message : "Failed to load dashboard");
       } finally {
         setLoading(false);
       }
@@ -174,44 +178,77 @@ export default function DashboardPage() {
     loadDashboard();
   }, []);
 
+  const today = useMemo(
+    () =>
+      new Date().toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }),
+    [],
+  );
+
   return (
     <div className="mx-auto w-full max-w-[1500px]">
-      <PageHeader
-        title="Dashboard"
-        description="A quick view of what customers are saying across your workspace."
-      />
+      <div className="mb-6 flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+        <div>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#8090a4]">
+            Workspace overview
+          </p>
+          <h1 className="text-[32px] font-bold tracking-tight text-[#142238] sm:text-[38px]">
+            Good afternoon, <span className="text-[#2f6fed]">Admin</span>
+          </h1>
+          <p className="mt-1.5 text-[15px] text-[#64748b]">
+            Here&apos;s what your customers are saying across your workspace.
+          </p>
+        </div>
 
-      <div className="mb-6 flex items-center gap-2 text-xs text-muted">
-        <span className="h-2 w-2 rounded-full bg-emerald-500" />
-        <span>Workspace intelligence</span>
-        <ArrowUpRight className="h-3.5 w-3.5" />
-        <span>Live data</span>
+        <div className="flex items-center gap-3">
+          <div className="hidden items-center gap-2 rounded-xl border border-[#e2e9f1] bg-white px-3 py-2.5 text-xs font-medium text-[#66758a] shadow-sm sm:flex">
+            <CalendarDays size={15} className="text-[#2f6fed]" />
+            Last 30 days
+            <span className="text-[#b0bac7]">•</span>
+            {today}
+          </div>
+
+          <a
+            href="/ask"
+            className="group flex items-center gap-3 rounded-xl border border-[#dce7fb] bg-[#f1f6ff] px-4 py-2.5 transition hover:border-[#c9dafa] hover:bg-[#eaf2ff]"
+          >
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[#2f6fed] shadow-sm">
+              <Sparkles size={16} />
+            </span>
+            <span className="text-left">
+              <span className="block text-xs font-bold text-[#17263a]">Ask LOOP</span>
+              <span className="block text-[10px] text-[#718096]">Get instant insights</span>
+            </span>
+            <ArrowRight size={16} className="text-[#2f6fed] transition group-hover:translate-x-0.5" />
+          </a>
+        </div>
       </div>
 
       {error && (
-        <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300">
+        <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           Unable to load dashboard data: {error}
         </div>
       )}
 
       <div className="grid gap-4 md:grid-cols-3">
-        <DashboardStat
+        <StatCard
           label="Total feedback"
           value={loading ? "—" : stats?.totalFeedback ?? 0}
           helper="Across all channels"
           icon={MessageSquare}
-          tone="indigo"
+          tone="blue"
         />
-
-        <DashboardStat
+        <StatCard
           label="Negative feedback"
           value={loading ? "—" : `${stats?.negativePercent ?? 0}%`}
           helper="Of current feedback"
-          icon={TrendingDown}
-          tone="rose"
+          icon={ThumbsDown}
+          tone="red"
         />
-
-        <DashboardStat
+        <StatCard
           label="New this week"
           value={loading ? "—" : stats?.newThisWeek ?? 0}
           helper="Needs review"
@@ -220,37 +257,97 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-2">
-        <ChartCard
+      <div className="mt-4 grid gap-4 xl:grid-cols-[1.35fr_0.85fr]">
+        <Panel
           title="Feedback volume"
-          description="Incoming feedback over time"
+          subtitle="Incoming feedback over time"
           icon={MessageCircle}
-          iconClassName="bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
-          badge="30 days"
+          action={
+            <span className="rounded-lg border border-[#e2e9f1] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#69788c]">
+              Last 30 days
+            </span>
+          }
         >
           <VolumeChart data={volume} />
-        </ChartCard>
+        </Panel>
 
-        <ChartCard
+        <Panel
           title="Sentiment breakdown"
-          description="Positive, neutral and negative feedback"
-          icon={TrendingDown}
-          iconClassName="bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
-          badge="Current"
+          subtitle="Positive, neutral and negative feedback"
+          icon={BarChart3}
+          action={
+            <span className="rounded-lg border border-[#e2e9f1] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#69788c]">
+              Current
+            </span>
+          }
         >
           <SentimentChart data={sentiment} />
-        </ChartCard>
+        </Panel>
+      </div>
 
-        <ChartCard
+      <div className="mt-4 grid gap-4 xl:grid-cols-[1.35fr_0.85fr]">
+        <Panel
           title="Top themes"
-          description="Most frequently mentioned customer themes"
+          subtitle="Most frequently mentioned customer themes"
           icon={BarChart3}
-          iconClassName="bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-400"
-          badge="Top 7"
-          className="xl:col-span-2"
+          action={
+            <span className="rounded-lg border border-[#e2e9f1] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#69788c]">
+              Top {Math.min(themes.length, 7)}
+            </span>
+          }
         >
-          <ThemeBarChart data={themes} />
-        </ChartCard>
+          <ThemeBarChart data={themes.slice(0, 7)} />
+        </Panel>
+
+        <Panel
+          title="Recent feedback"
+          subtitle="Latest customer feedback across all channels"
+          icon={MessageSquare}
+          action={
+            <a href="/inbox" className="text-[11px] font-bold text-[#2f6fed] hover:underline">
+              View all
+            </a>
+          }
+        >
+          <div className="divide-y divide-[#edf1f5]">
+            {loading ? (
+              <div className="space-y-3 py-2">
+                {[1, 2, 3, 4, 5].map((item) => (
+                  <div key={item} className="h-12 animate-pulse rounded-lg bg-[#f3f6fa]" />
+                ))}
+              </div>
+            ) : recent.length ? (
+              recent.map((item) => (
+                <a
+                  key={item.id}
+                  href={`/inbox/${item.id}`}
+                  className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
+                >
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#f1f5f9]">
+                    <SentimentIcon sentiment={item.sentiment} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-semibold text-[#25354a]">
+                      {item.text}
+                    </p>
+                    <p className="mt-1 text-[10px] text-[#8a96a7]">
+                      {item.channel.replace("_", " ")} • {formatDate(item.createdAt)}
+                    </p>
+                  </div>
+                  {item.themes[0] && (
+                    <span className="hidden max-w-[130px] truncate rounded-full bg-[#eef4ff] px-2.5 py-1 text-[9px] font-semibold text-[#356dc7] sm:block">
+                      {item.themes[0].name}
+                    </span>
+                  )}
+                </a>
+              ))
+            ) : (
+              <div className="py-10 text-center text-sm text-[#8491a3]">
+                No feedback yet.
+              </div>
+            )}
+          </div>
+        </Panel>
       </div>
     </div>
   );
