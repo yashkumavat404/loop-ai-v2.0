@@ -14,8 +14,8 @@ import type { Theme } from "@/lib/types";
 export function ThemeBarChart({ data }: { data: Theme[] }) {
   if (!data.length) {
     return (
-      <div className="flex h-72 items-center justify-center rounded-xl bg-muted">
-        <p className="text-sm text-muted-foreground">
+      <div className="flex h-72 items-center justify-center rounded-xl bg-[#f7f9fc] dark:bg-[#151e2a]">
+        <p className="text-sm text-[#8491a3] dark:text-[#8d9aad]">
           No themes available yet.
         </p>
       </div>
@@ -33,7 +33,7 @@ export function ThemeBarChart({ data }: { data: Theme[] }) {
           <CartesianGrid
             strokeDasharray="3 3"
             horizontal={false}
-            stroke="#e2e8f0"
+            stroke="var(--border)"
           />
 
           <XAxis
@@ -41,7 +41,7 @@ export function ThemeBarChart({ data }: { data: Theme[] }) {
             allowDecimals={false}
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 11, fill: "#94a3b8" }}
+            tick={{ fontSize: 11, fill: "var(--text-muted)" }}
           />
 
           <YAxis
@@ -50,15 +50,15 @@ export function ThemeBarChart({ data }: { data: Theme[] }) {
             width={135}
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 11, fill: "#64748b" }}
+            tick={{ fontSize: 11, fill: "var(--text-secondary)" }}
           />
 
           <Tooltip
-            cursor={{ fill: "#f8fafc" }}
+            cursor={{ fill: "var(--surface-soft)" }}
             contentStyle={{
               borderRadius: "12px",
-              border: "1px solid #e2e8f0",
-              boxShadow: "0 8px 30px rgba(15, 23, 42, 0.08)",
+              border: "1px solid var(--border)",
+              background: "var(--surface)", boxShadow: "0 8px 30px rgba(0,0,0,0.24)",
               fontSize: "12px",
             }}
           />
