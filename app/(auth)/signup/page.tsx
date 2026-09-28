@@ -22,6 +22,31 @@ export default function SignupPage() {
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
+
+    const normalizedName = name.trim();
+    const normalizedWorkspace = workspace.trim();
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (normalizedName.length < 2) {
+      setError("Please enter your name.");
+      return;
+    }
+
+    if (normalizedWorkspace.length < 2) {
+      setError("Please enter a workspace name.");
+      return;
+    }
+
+    if (!normalizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -29,9 +54,9 @@ export default function SignupPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name,
-          workspaceName: workspace,
-          email,
+          name: normalizedName,
+          workspaceName: normalizedWorkspace,
+          email: normalizedEmail,
           password,
         }),
       });
@@ -52,14 +77,14 @@ export default function SignupPage() {
       }
 
       const loginResult = await signIn("credentials", {
-        email,
+        email: normalizedEmail,
         password,
         redirect: false,
       });
 
       if (!loginResult || loginResult.error) {
         setError(
-          "Your workspace was created. Please sign in with your new account.",
+          "Your workspace was created, but automatic sign-in failed. Please sign in with your new account.",
         );
         return;
       }
@@ -141,7 +166,7 @@ export default function SignupPage() {
             </p>
           </div>
 
-          <form onSubmit={submit} className="overflow-hidden rounded-2xl border border-[#dfe6ef] bg-white shadow-[0_12px_35px_rgba(24,45,75,0.07)] dark:border-[#273447] dark:bg-[#111923] dark:shadow-[0_14px_40px_rgba(0,0,0,0.25)]">
+          <form noValidate onSubmit={submit} className="overflow-hidden rounded-2xl border border-[#dfe6ef] bg-white shadow-[0_12px_35px_rgba(24,45,75,0.07)] dark:border-[#273447] dark:bg-[#111923] dark:shadow-[0_14px_40px_rgba(0,0,0,0.25)]">
             <div className="border-b border-[#edf1f5] bg-[#fafbfd] px-6 py-5 dark:border-[#273447] dark:bg-[#0d141e]">
               <h2 className="font-bold">Create your account</h2>
               <p className="mt-1 text-xs text-[#8491a3] dark:text-[#8d9aad]">
