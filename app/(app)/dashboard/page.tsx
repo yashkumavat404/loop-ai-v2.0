@@ -53,7 +53,7 @@ function StatCard({
   }[tone];
 
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-[#e5ebf2] dark:border-[#273447] bg-white p-5 shadow-[0_3px_16px_rgba(24,45,75,0.045)] dark:border-[#273447] dark:bg-[#111923] dark:shadow-[0_8px_28px_rgba(0,0,0,0.24)]">
+    <section className="relative overflow-hidden rounded-2xl border border-[#e5ebf2] bg-white p-5 shadow-[0_3px_16px_rgba(24,45,75,0.045)] dark:border-[#273447] dark:bg-[#111923] dark:shadow-[0_8px_28px_rgba(0,0,0,0.24)]">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.13em] text-[#718096] dark:text-[#8d9aad]">
@@ -99,10 +99,10 @@ function Panel({
   className?: string;
 }) {
   return (
-    <section className={`overflow-hidden rounded-2xl border border-[#e5ebf2] dark:border-[#273447] bg-white shadow-[0_3px_16px_rgba(24,45,75,0.045)] ${className}`}>
+    <section className={`overflow-hidden rounded-2xl border border-[#e5ebf2] bg-white shadow-[0_3px_16px_rgba(24,45,75,0.045)] dark:border-[#273447] dark:bg-[#111923] dark:shadow-[0_8px_28px_rgba(0,0,0,0.24)] ${className}`}>
       <div className="flex items-center justify-between gap-4 border-b border-[#edf1f5] dark:border-[#273447] px-5 py-4">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#f0f5ff] text-[#2f6fed]">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#f0f5ff] text-[#2f6fed] dark:bg-[#162b4a] dark:text-[#76a9ff]">
             <Icon size={18} />
           </div>
           <div className="min-w-0">
@@ -192,7 +192,7 @@ export default function DashboardPage() {
     <div className="mx-auto w-full max-w-[1500px]">
       <div className="mb-6 flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#8090a4]">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#8090a4] dark:text-[#8d9aad]">
             Workspace overview
           </p>
           <h1 className="text-[32px] font-bold tracking-tight text-[#142238] dark:text-[#f2f6fb] sm:text-[38px]">
@@ -204,7 +204,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="hidden items-center gap-2 rounded-xl border border-[#e2e9f1] dark:border-[#2b394b] bg-white px-3 py-2.5 text-xs font-medium text-[#66758a] shadow-sm sm:flex">
+          <div className="hidden items-center gap-2 rounded-xl border border-[#e2e9f1] bg-white px-3 py-2.5 text-xs font-medium text-[#66758a] shadow-sm dark:border-[#2b394b] dark:bg-[#111923] dark:text-[#9aa8ba] sm:flex">
             <CalendarDays size={15} className="text-[#2f6fed]" />
             Last 30 days
             <span className="text-[#b0bac7]">•</span>
@@ -213,9 +213,9 @@ export default function DashboardPage() {
 
           <a
             href="/ask"
-            className="group flex items-center gap-3 rounded-xl border border-[#dce7fb] bg-[#f1f6ff] px-4 py-2.5 transition hover:border-[#c9dafa] hover:bg-[#eaf2ff]"
+            className="group flex items-center gap-3 rounded-xl border border-[#dce7fb] bg-[#f1f6ff] px-4 py-2.5 transition hover:border-[#c9dafa] hover:bg-[#eaf2ff] dark:border-[#263b60] dark:bg-[#101b30] dark:hover:border-[#34558a] dark:hover:bg-[#14243d]"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[#2f6fed] dark:bg-[#182230] dark:text-[#76a9ff] shadow-sm">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[#2f6fed] shadow-sm dark:bg-[#182a46] dark:text-[#76a9ff]">
               <Sparkles size={16} />
             </span>
             <span className="text-left">
@@ -228,7 +228,7 @@ export default function DashboardPage() {
       </div>
 
       {error && (
-        <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300">
           Unable to load dashboard data: {error}
         </div>
       )}
@@ -309,7 +309,7 @@ export default function DashboardPage() {
             </a>
           }
         >
-          <div className="divide-y divide-[#edf1f5]">
+          <div className="divide-y divide-[#edf1f5] dark:divide-[#273447]">
             {loading ? (
               <div className="space-y-3 py-2">
                 {[1, 2, 3, 4, 5].map((item) => (
