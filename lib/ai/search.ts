@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+
 import { db } from "@/lib/db";
 import { generateEmbedding } from "./embeddings";
 
@@ -17,6 +19,8 @@ export async function searchRelevantFeedback(
   question: string,
   workspaceId: string,
   limit = 8,
+  dateFrom?: Date,
+  dateTo?: Date,
 ): Promise<RetrievedFeedback[]> {
   const embedding = await generateEmbedding(
     question,
@@ -24,6 +28,11 @@ export async function searchRelevantFeedback(
   );
 
   const vector = vectorToSql(embedding);
+
+  const dateFilter =
+    dateFrom && dateTo
+      ? Prisma.sql`AND f."createdAt" >= ${dateFrom} AND f."createdAt" < ${dateTo}`
+      : Prisma.empty;
 
   const results = await db.$queryRaw<RetrievedFeedback[]>`
     SELECT
@@ -37,6 +46,7 @@ export async function searchRelevantFeedback(
     INNER JOIN "Embedding" e
       ON e."feedbackId" = f."id"
     WHERE f."workspaceId" = ${workspaceId}
+      ${dateFilter}
     ORDER BY e."vector" <=> ${vector}::vector
     LIMIT ${limit}
   `;
