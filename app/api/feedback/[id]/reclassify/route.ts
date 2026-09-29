@@ -141,6 +141,17 @@ export async function POST(
       );
     }
 
+    if (
+      error instanceof Error &&
+      error.message ===
+        "AI service is temporarily unavailable. Please try again in a moment."
+    ) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 503 },
+      );
+    }
+
     console.error("Failed to reclassify feedback:", error);
 
     return NextResponse.json(
