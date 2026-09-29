@@ -53,7 +53,7 @@ function StatCard({
   }[tone];
 
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-[#e5ebf2] bg-white p-5 shadow-[0_3px_16px_rgba(24,45,75,0.045)] dark:border-[#273447] dark:bg-[#111923] dark:shadow-[0_8px_28px_rgba(0,0,0,0.24)]">
+    <section className="group relative overflow-hidden rounded-2xl border border-[#e5ebf2] bg-white p-5 shadow-[0_3px_16px_rgba(24,45,75,0.045)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#d5dfeb] hover:shadow-[0_10px_28px_rgba(24,45,75,0.09)] dark:border-[#273447] dark:bg-[#111923] dark:shadow-[0_8px_28px_rgba(0,0,0,0.24)] dark:hover:border-[#35455b] dark:hover:shadow-[0_12px_32px_rgba(0,0,0,0.30)]">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.13em] text-[#718096] dark:text-[#8d9aad]">
