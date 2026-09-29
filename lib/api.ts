@@ -134,10 +134,21 @@ export const api = {
       `/api/analytics/theme-trends?period=${period}`,
     ),
 
-  askLoop: (question: string) =>
+  askLoop: (
+    question: string,
+    timeContext: {
+      clientNow: string;
+      clientTimeZone: string;
+      todayStart: string;
+      todayEnd: string;
+    },
+  ) =>
     request<AskResponse>("/api/ask", {
       method: "POST",
-      body: JSON.stringify({ question }),
+      body: JSON.stringify({
+        question,
+        ...timeContext,
+      }),
     }),
 
   getReports: () =>
