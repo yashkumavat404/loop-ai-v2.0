@@ -4,7 +4,7 @@ LOOP is a multi-tenant customer-feedback intelligence platform built for the Zid
 
 ## Live application
 
-Production: https://loop-ai-v2-0-fmqadf4nf-yashkumavat404.vercel.app
+Production: https://loop-ai-v2-0.vercel.app
 
 ## Core capabilities
 
