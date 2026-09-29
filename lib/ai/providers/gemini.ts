@@ -32,6 +32,79 @@ const buildThemeContext = (existingThemes: ExistingTheme[]) => {
     .join("\n");
 };
 
+const sleep = (milliseconds: number) =>
+  new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+const generateClassification = async (
+  ai: GoogleGenAI,
+  prompt: string,
+) => {
+  const maxAttempts = 3;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      return await ai.models.generateContent({
+        model: GEMINI_MODEL,
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "object",
+            properties: {
+              sentiment: {
+                type: "string",
+                enum: ["POSITIVE", "NEUTRAL", "NEGATIVE"],
+              },
+              sentimentScore: {
+                type: "number",
+              },
+              themes: {
+                type: "array",
+                items: {
+                  type: "string",
+                },
+              },
+              featureArea: {
+                type: "string",
+              },
+            },
+            required: [
+              "sentiment",
+              "sentimentScore",
+              "themes",
+              "featureArea",
+            ],
+          },
+        },
+      });
+    } catch (error) {
+      const status =
+        typeof error === "object" &&
+        error !== null &&
+        "status" in error &&
+        typeof error.status === "number"
+          ? error.status
+          : undefined;
+
+      const retryable = status === 503 || status === 429;
+
+      if (!retryable || attempt === maxAttempts) {
+        if (status === 503 || status === 429) {
+          throw new Error(
+            "AI service is temporarily unavailable. Please try again in a moment.",
+          );
+        }
+
+        throw error;
+      }
+
+      await sleep(attempt * 1500);
+    }
+  }
+
+  throw new Error("AI classification failed");
+};
+
 const geminiProvider: AIProvider = {
   classifyFeedback: async (
     content: string,
@@ -78,40 +151,7 @@ ${content}
 Classify the feedback accurately and return only the JSON object.
 `;
 
-    const response = await ai.models.generateContent({
-      model: GEMINI_MODEL,
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: "object",
-          properties: {
-            sentiment: {
-              type: "string",
-              enum: ["POSITIVE", "NEUTRAL", "NEGATIVE"],
-            },
-            sentimentScore: {
-              type: "number",
-            },
-            themes: {
-              type: "array",
-              items: {
-                type: "string",
-              },
-            },
-            featureArea: {
-              type: "string",
-            },
-          },
-          required: [
-            "sentiment",
-            "sentimentScore",
-            "themes",
-            "featureArea",
-          ],
-        },
-      },
-    });
+    const response = await generateClassification(ai, prompt);
 
     const rawText = response.text;
 
