@@ -121,9 +121,19 @@ button {
 
 @layer components {
   .card {
-    @apply rounded-2xl border shadow-card;
+    @apply rounded-2xl border shadow-card transition-all duration-200;
     background: var(--surface);
     border-color: var(--border);
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    border-color: var(--border-strong);
+  }
+
+  .dark .card:hover {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
   }
 
   .btn-primary {
