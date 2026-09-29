@@ -35,7 +35,26 @@ export default function AskPage() {
     setError("");
 
     try {
-      const result = await api.askLoop(trimmedQuestion);
+      const now = new Date();
+      const todayStart = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+      );
+      const todayEnd = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + 1,
+      );
+
+      const result = await api.askLoop(trimmedQuestion, {
+        clientNow: now.toISOString(),
+        clientTimeZone:
+          Intl.DateTimeFormat().resolvedOptions().timeZone,
+        todayStart: todayStart.toISOString(),
+        todayEnd: todayEnd.toISOString(),
+      });
+
       setAnswer(result);
     } catch (err) {
       setAnswer(null);
