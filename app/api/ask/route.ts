@@ -7,6 +7,10 @@ import { searchRelevantFeedback } from "@/lib/ai/search";
 
 const requestSchema = z.object({
   question: z.string().trim().min(3).max(1000),
+  clientNow: z.string().datetime(),
+  clientTimeZone: z.string().trim().min(1).max(100),
+  todayStart: z.string().datetime(),
+  todayEnd: z.string().datetime(),
 });
 
 const answerSchema = z.object({
@@ -38,18 +42,53 @@ export async function POST(request: Request) {
       );
     }
 
-    const { question } = parsed.data;
+    const {
+      question,
+      clientNow,
+      clientTimeZone,
+      todayStart,
+      todayEnd,
+    } = parsed.data;
+
+    const isTodayQuestion =
+      /\b(today|today's|this morning|this afternoon|this evening|so far today|right now)\b/i.test(
+        question,
+      );
+
+    const now = new Date(clientNow);
+    const todayStartDate = new Date(todayStart);
+    const todayEndDate = new Date(todayEnd);
+
+    let currentLocalTime: string;
+
+    try {
+      currentLocalTime = new Intl.DateTimeFormat("en-IN", {
+        dateStyle: "full",
+        timeStyle: "long",
+        timeZone: clientTimeZone,
+      }).format(now);
+    } catch {
+      return NextResponse.json(
+        { message: "Invalid client time zone." },
+        { status: 400 },
+      );
+    }
 
     const results = await searchRelevantFeedback(
       question,
       user.workspaceId,
       8,
+      isTodayQuestion ? todayStartDate : undefined,
+      isTodayQuestion ? todayEndDate : undefined,
     );
 
     if (!results.length) {
       return NextResponse.json({
-        answer:
-          "I could not find enough relevant feedback in your workspace to answer this question.",
+        answer: isTodayQuestion
+          ? "I could not find any feedback recorded today as of " +
+            currentLocalTime +
+            "."
+          : "I could not find enough relevant feedback in your workspace to answer this question.",
         sources: [],
       });
     }
@@ -82,6 +121,11 @@ Rules:
 - Keep the answer concise and useful.
 - Select the source IDs that directly support your answer.
 - Return valid JSON only.
+
+CURRENT LOCAL DATE AND TIME:
+${currentLocalTime}
+
+For questions referring to "today", "this morning", "this afternoon", "this evening", "right now", or similar relative time, use the current local date/time above and the provided feedback dates. Do not claim that the date is unknown.
 
 USER QUESTION:
 ${question}
