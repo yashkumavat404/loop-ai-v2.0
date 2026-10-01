@@ -6,8 +6,6 @@ import { classifyFeedback } from "@/lib/ai";
 import { createFeedbackEmbedding } from "@/lib/ai/embedding-store";
 import { getAuthenticatedUser, requireRole } from "@/lib/auth-helpers";
 
-export const maxDuration = 60;
-
 const rowSchema = z.object({
   content: z.string().trim().min(1).max(10000),
   channel: z.enum([
@@ -143,13 +141,15 @@ async function processRow(
   item: ImportedFeedback,
   workspaceId: string,
 ): Promise<ImportResult> {
+  const duplicateWhere = {
+    workspaceId,
+    content: item.content,
+    ...(item.customerLabel ? { customerLabel: item.customerLabel } : {}),
+    ...(item.createdAt ? { createdAt: item.createdAt } : {}),
+  };
+
   const existingFeedback = await db.feedback.findFirst({
-    where: {
-      workspaceId,
-      content: item.content,
-      customerLabel: item.customerLabel,
-      createdAt: item.createdAt,
-    },
+    where: duplicateWhere,
     select: { id: true },
   });
 
