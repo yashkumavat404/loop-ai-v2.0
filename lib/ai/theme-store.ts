@@ -12,32 +12,18 @@ export async function resolveWorkspaceThemes(
     ),
   ).slice(0, 5);
 
-  const existing = await db.theme.findMany({
-    where: {
-      workspaceId,
-    },
-    select: {
-      id: true,
-      name: true,
-    },
-  });
-
-  const byName = new Map(
-    existing.map((theme) => [theme.name.toLowerCase(), theme]),
-  );
-
   const resolved = [];
 
   for (const name of normalizedNames) {
-    const existingTheme = byName.get(name.toLowerCase());
-
-    if (existingTheme) {
-      resolved.push(existingTheme);
-      continue;
-    }
-
-    const created = await db.theme.create({
-      data: {
+    const theme = await db.theme.upsert({
+      where: {
+        workspaceId_name: {
+          workspaceId,
+          name,
+        },
+      },
+      update: {},
+      create: {
         workspaceId,
         name,
       },
@@ -47,8 +33,7 @@ export async function resolveWorkspaceThemes(
       },
     });
 
-    byName.set(name.toLowerCase(), created);
-    resolved.push(created);
+    resolved.push(theme);
   }
 
   return resolved;
