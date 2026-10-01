@@ -6,6 +6,7 @@ import { classifyFeedback } from "@/lib/ai";
 import { createFeedbackEmbedding } from "@/lib/ai/embedding-store";
 import { getAuthenticatedUser, requireRole } from "@/lib/auth-helpers";
 import type { FeedbackClassification } from "@/lib/ai/schemas";
+import { resolveWorkspaceThemes } from "@/lib/ai/theme-store";
 
 const rowSchema = z.object({
   content: z.string().trim().min(1).max(10000),
@@ -231,18 +232,10 @@ async function processRow(
     fallbackClassified = true;
   }
 
-  const existingThemes = await db.theme.findMany({
-    where: {
-      workspaceId,
-      name: {
-        in: classification.themes,
-      },
-    },
-    select: {
-      id: true,
-      name: true,
-    },
-  });
+  const existingThemes = await resolveWorkspaceThemes(
+    workspaceId,
+    classification.themes,
+  );
 
   const feedback = await db.feedback.create({
     data: {
