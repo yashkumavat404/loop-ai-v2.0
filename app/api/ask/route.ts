@@ -75,6 +75,59 @@ export async function POST(request: Request) {
       );
     }
 
+    // Direct customer lookups must search the customer label in PostgreSQL.
+    // Customer names are metadata and are not part of the feedback-content
+    // embedding, so semantic retrieval alone cannot reliably answer these.
+    const customerMatch =
+      question.match(/\b(?:from|by|customer(?: named)?)[\s:]+([a-zA-Z][a-zA-Z0-9 .'-]{0,80}?)(?:\?|$)/i);
+
+    if (customerMatch) {
+      const customerName = customerMatch[1].trim();
+
+      const customerFeedback = await db.feedback.findMany({
+        where: {
+          workspaceId: user.workspaceId,
+          customerLabel: {
+            contains: customerName,
+            mode: "insensitive",
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 8,
+        select: {
+          id: true,
+          content: true,
+          channel: true,
+          sentiment: true,
+          createdAt: true,
+          customerLabel: true,
+        },
+      });
+
+      if (!customerFeedback.length) {
+        return NextResponse.json({
+          answer: `I could not find any feedback from a customer named ${customerName} in your workspace.`,
+          sources: [],
+        });
+      }
+
+      return NextResponse.json({
+        answer:
+          customerFeedback.length === 1
+            ? `I found 1 feedback entry from ${customerFeedback[0].customerLabel ?? customerName}.`
+            : `I found ${customerFeedback.length} feedback entries from customers matching "${customerName}".`,
+        sources: customerFeedback.map((item) => ({
+          id: item.id,
+          text: item.content,
+          channel: item.channel,
+          sentiment: item.sentiment,
+          createdAt: item.createdAt,
+        })),
+      });
+    }
+
     // Exact analytics must use the full workspace dataset.
     // Do this before semantic retrieval so embedding availability cannot
     // affect deterministic counts or percentages.
