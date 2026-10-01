@@ -6,6 +6,7 @@ import { classifyFeedback } from "@/lib/ai";
 import { getAuthenticatedUser, requireRole } from "@/lib/auth-helpers";
 import { createFeedbackEmbedding } from "@/lib/ai/embedding-store";
 import { resolveWorkspaceThemes } from "@/lib/ai/theme-store";
+import type { FeedbackClassification } from "@/lib/ai/schemas";
 
 const createFeedbackSchema = z.object({
   content: z.string().trim().min(1).max(10000),
@@ -20,6 +21,55 @@ const createFeedbackSchema = z.object({
   sourceRef: z.string().trim().max(500).optional(),
   customerLabel: z.string().trim().max(200).optional(),
 });
+
+function fallbackClassification(content: string): FeedbackClassification {
+  const text = content.toLowerCase();
+
+  const negativeWords = [
+    "error", "slow", "confusing", "difficult", "trouble", "problem",
+    "issue", "could not", "cannot", "wrong", "failed", "failure", "long",
+  ];
+  const positiveWords = [
+    "fast", "faster", "smooth", "easy", "excellent", "useful",
+    "professional", "reliably", "works perfectly", "cleaner", "accurate",
+    "quickly", "great",
+  ];
+
+  const negativeHits = negativeWords.filter((word) => text.includes(word)).length;
+  const positiveHits = positiveWords.filter((word) => text.includes(word)).length;
+
+  const sentiment =
+    positiveHits > negativeHits
+      ? "POSITIVE"
+      : negativeHits > positiveHits
+        ? "NEGATIVE"
+        : "NEUTRAL";
+
+  const sentimentScore =
+    sentiment === "POSITIVE"
+      ? Math.min(0.8, 0.25 + positiveHits * 0.1)
+      : sentiment === "NEGATIVE"
+        ? Math.max(-0.8, -0.25 - negativeHits * 0.1)
+        : 0;
+
+  let featureArea = "General";
+  if (/search|filter|inbox|pagination/.test(text)) featureArea = "Search";
+  else if (/dashboard|chart|metric|trend/.test(text)) featureArea = "Dashboard";
+  else if (/upload|csv|import|spreadsheet/.test(text)) featureArea = "Data Import";
+  else if (/login|onboarding|account|verification/.test(text)) featureArea = "Account";
+  else if (/report|pdf|summary/.test(text)) featureArea = "Reporting";
+  else if (/ai|classification|theme|ask loop/.test(text)) featureArea = "AI";
+  else if (/support|notification/.test(text)) featureArea = "Support";
+  else if (/mobile|screen size|dark mode|interface|navigation/.test(text)) featureArea = "UI/UX";
+  else if (/load|performance|slow|fast|faster|network/.test(text)) featureArea = "Performance";
+
+  return {
+    sentiment,
+    sentimentScore,
+    themes: [featureArea],
+    featureArea,
+  };
+}
 
 const feedbackQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
@@ -255,10 +305,20 @@ export async function POST(request: Request) {
       customerLabel,
     } = parsed.data;
 
-    const classification = await classifyFeedback(
-      content,
-      user.workspaceId,
-    );
+    let classification: FeedbackClassification;
+
+    try {
+      classification = await classifyFeedback(
+        content,
+        user.workspaceId,
+      );
+    } catch (error) {
+      console.error(
+        "Manual AI classification failed; using resilient fallback:",
+        error,
+      );
+      classification = fallbackClassification(content);
+    }
 
     const existingThemes = await resolveWorkspaceThemes(
       user.workspaceId,
