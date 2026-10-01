@@ -142,6 +142,24 @@ async function processRow(
   item: ImportedFeedback,
   workspaceId: string,
 ): Promise<ImportResult> {
+  const existingFeedback = await db.feedback.findFirst({
+    where: {
+      workspaceId,
+      content: item.content,
+      customerLabel: item.customerLabel,
+      createdAt: item.createdAt,
+    },
+    select: { id: true },
+  });
+
+  if (existingFeedback) {
+    return {
+      imported: 0,
+      skipped: 1,
+      fallbackClassified: false,
+    };
+  }
+
   let classification;
   let fallbackClassified = false;
 
@@ -193,6 +211,7 @@ async function processRow(
 
   return {
     imported: 1,
+    skipped: 0,
     fallbackClassified,
   };
 }
@@ -214,7 +233,7 @@ async function runWithConcurrency<T>(
         results[index] = await worker(items[index]);
       } catch (error) {
         console.error("CSV row import failed:", error);
-        results[index] = { imported: 0, fallbackClassified: false };
+        results[index] = { imported: 0, skipped: 0, fallbackClassified: false };
       }
     }
   }
@@ -328,6 +347,10 @@ export async function POST(request: Request) {
       (total, result) => total + result.imported,
       0,
     );
+    const skippedCount = results.reduce(
+      (total, result) => total + (result.skipped ?? 0),
+      0,
+    );
     const fallbackCount = results.filter(
       (result) => result.fallbackClassified,
     ).length;
@@ -335,6 +358,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       data: {
         imported: importedCount,
+        skipped: skippedCount,
         failed: failures.length,
         fallbackClassified: fallbackCount,
         failures,
