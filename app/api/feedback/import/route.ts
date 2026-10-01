@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { classifyFeedback } from "@/lib/ai";
 import { createFeedbackEmbedding } from "@/lib/ai/embedding-store";
 import { getAuthenticatedUser, requireRole } from "@/lib/auth-helpers";
+import type { FeedbackClassification } from "@/lib/ai/schemas";
 
 const rowSchema = z.object({
   content: z.string().trim().min(1).max(10000),
@@ -66,7 +67,7 @@ function parseCsvLine(line: string): string[] {
   return values;
 }
 
-function fallbackClassification(content: string) {
+function fallbackClassification(content: string): FeedbackClassification {
   const text = content.toLowerCase();
 
   const negativeWords = [
@@ -134,7 +135,7 @@ function fallbackClassification(content: string) {
     sentimentScore,
     themes: [featureArea],
     featureArea,
-  } as const;
+  };
 }
 
 async function processRow(
