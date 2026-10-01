@@ -75,17 +75,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const results = await searchRelevantFeedback(
-      question,
-      user.workspaceId,
-      8,
-      isTodayQuestion ? todayStartDate : undefined,
-      isTodayQuestion ? todayEndDate : undefined,
-    );
-
-    // Deterministic analytics path for count/percentage questions.
-    // Semantic retrieval is intentionally not used for exact aggregates because
-    // top-K retrieval cannot represent the full workspace population.
+    // Exact analytics must use the full workspace dataset.
+    // Do this before semantic retrieval so embedding availability cannot
+    // affect deterministic counts or percentages.
     const asksForAggregate =
       /\b(how many|count|number of|percentage|percent|%|what proportion)\b/i.test(
         question,
@@ -170,6 +162,14 @@ export async function POST(request: Request) {
         })),
       });
     }
+
+    const results = await searchRelevantFeedback(
+      question,
+      user.workspaceId,
+      8,
+      isTodayQuestion ? todayStartDate : undefined,
+      isTodayQuestion ? todayEndDate : undefined,
+    );
 
     if (!results.length) {
       return NextResponse.json({
