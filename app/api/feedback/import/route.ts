@@ -37,6 +37,7 @@ type ImportedFeedback = {
 
 type ImportResult = {
   imported: number;
+  skipped: number;
   fallbackClassified: boolean;
 };
 
