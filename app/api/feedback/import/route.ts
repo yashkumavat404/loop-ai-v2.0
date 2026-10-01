@@ -414,7 +414,25 @@ export async function POST(request: Request) {
       .map((result, index) =>
         result.error
           ? {
-              row: index + 2,
+              // Imported contains only rows that passed validation, so map
+              // failures back to their original CSV row number.
+              row:
+                records.findIndex(
+                  (record, recordIndex) =>
+                    recordIndex > 0 &&
+                    record
+                      .map((value) => value.trim())
+                      .join("\u0001") ===
+                      Object.values({
+                        content: imported[index]?.content ?? "",
+                        channel: imported[index]?.channel ?? "",
+                        customer_label: imported[index]?.customerLabel ?? "",
+                        created_at:
+                          imported[index]?.createdAt?.toISOString() ?? "",
+                      })
+                        .map((value) => String(value))
+                        .join("\u0001"),
+                ) + 1,
               error: result.error,
             }
           : null,
