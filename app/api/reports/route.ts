@@ -150,6 +150,39 @@ export async function POST(request: Request) {
       );
     }
 
+    const themeCounts = new Map<string, number>();
+
+    for (const item of feedback) {
+      for (const relation of item.themes) {
+        const name = relation.theme.name;
+
+        themeCounts.set(
+          name,
+          (themeCounts.get(name) ?? 0) + 1,
+        );
+      }
+    }
+
+    const topThemes = Array.from(themeCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 7)
+      .map(([name, count]) => ({
+        name,
+        count,
+      }));
+
+    const sentimentCounts = {
+      POSITIVE: 0,
+      NEUTRAL: 0,
+      NEGATIVE: 0,
+    };
+
+    for (const item of feedback) {
+      if (item.sentiment) {
+        sentimentCounts[item.sentiment]++;
+      }
+    }
+
     const periodDurationMs =
       periodEnd.getTime() - periodStart.getTime() + 1;
 
@@ -208,39 +241,6 @@ export async function POST(request: Request) {
             : `Current: ${currentPercent.toFixed(1)}%; previous: ${previousPercent.toFixed(1)}%; change: ${change >= 0 ? "+" : ""}${change.toFixed(1)} percentage points.`,
       };
     });
-
-    const themeCounts = new Map<string, number>();
-
-    for (const item of feedback) {
-      for (const relation of item.themes) {
-        const name = relation.theme.name;
-
-        themeCounts.set(
-          name,
-          (themeCounts.get(name) ?? 0) + 1,
-        );
-      }
-    }
-
-    const topThemes = Array.from(themeCounts.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 7)
-      .map(([name, count]) => ({
-        name,
-        count,
-      }));
-
-    const sentimentCounts = {
-      POSITIVE: 0,
-      NEUTRAL: 0,
-      NEGATIVE: 0,
-    };
-
-    for (const item of feedback) {
-      if (item.sentiment) {
-        sentimentCounts[item.sentiment]++;
-      }
-    }
 
     const quotes = feedback
       .filter((item) => item.content.trim())
