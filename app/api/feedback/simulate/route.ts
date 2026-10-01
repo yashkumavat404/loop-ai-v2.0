@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { classifyFeedback } from "@/lib/ai";
 import { createFeedbackEmbedding } from "@/lib/ai/embedding-store";
 import { getAuthenticatedUser, requireRole } from "@/lib/auth-helpers";
+import { resolveWorkspaceThemes } from "@/lib/ai/theme-store";
 
 const simulatedFeedback = [
   "I've been waiting several minutes for the checkout page to load.",
@@ -37,18 +38,10 @@ export async function POST() {
      * Only use themes that already belong to the
      * authenticated user's workspace.
      */
-    const existingThemes = await db.theme.findMany({
-      where: {
-        workspaceId: user.workspaceId,
-        name: {
-          in: classification.themes,
-        },
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-    });
+    const existingThemes = await resolveWorkspaceThemes(
+      user.workspaceId,
+      classification.themes,
+    );
 
     /*
      * Create the feedback record first so we have
@@ -88,10 +81,17 @@ export async function POST() {
      * Ask LOOP will later use this vector to retrieve
      * semantically relevant feedback.
      */
-    await createFeedbackEmbedding(
-      feedback.id,
-      feedback.content,
-    );
+    try {
+      await createFeedbackEmbedding(
+        feedback.id,
+        feedback.content,
+      );
+    } catch (error) {
+      console.error(
+        "Simulated feedback embedding failed; feedback retained:",
+        error,
+      );
+    }
 
     return NextResponse.json(
       {
