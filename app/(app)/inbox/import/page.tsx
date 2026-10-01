@@ -37,7 +37,8 @@ export default function ImportPage() {
       if (!response.ok) throw new Error(result.error || "CSV import failed");
       const imported = result.data.imported;
       const failed = result.data.failed;
-      setMessage(`Import completed: ${imported} record${imported === 1 ? "" : "s"} imported, ${failed} failed.`);
+      const fallbackClassified = result.data.fallbackClassified ?? 0;
+      setMessage(`Import completed: ${imported} record${imported === 1 ? "" : "s"} imported, ${failed} failed${fallbackClassified ? `, ${fallbackClassified} processed with resilient AI fallback` : ""}.`);
       setFailures(result.data.failures ?? []);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "CSV import failed.");
