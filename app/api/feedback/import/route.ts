@@ -40,6 +40,27 @@ type ImportResult = {
   fallbackClassified: boolean;
 };
 
+function normalizeChannel(value: string) {
+  const normalized = value.trim().toUpperCase().replace(/[-\s]+/g, "_");
+
+  const aliases: Record<string, ImportedFeedback["channel"]> = {
+    WEBSITE: "WEB",
+    SITE: "WEB",
+    "E_MAIL": "EMAIL",
+    "CUSTOMER_SUPPORT": "SUPPORT",
+    "HELP_DESK": "SUPPORT",
+    APPSTORE: "APP_STORE",
+    "APP_STORE": "APP_STORE",
+    PLAY_STORE: "APP_STORE",
+    FORM: "SURVEY",
+    QUESTIONNAIRE: "SURVEY",
+    FILE: "CSV",
+    UPLOAD: "CSV",
+  };
+
+  return aliases[normalized] ?? normalized;
+}
+
 function parseCsvLine(line: string): string[] {
   const values: string[] = [];
   let current = "";
@@ -317,7 +338,7 @@ export async function POST(request: Request) {
 
       const parsed = rowSchema.safeParse({
         content: rawRow.content,
-        channel: rawRow.channel,
+        channel: normalizeChannel(rawRow.channel),
         customer_label: rawRow.customer_label || undefined,
         created_at: rawRow.created_at || undefined,
       });
