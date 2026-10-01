@@ -87,11 +87,11 @@ export async function POST(request: Request) {
     // Semantic retrieval is intentionally not used for exact aggregates because
     // top-K retrieval cannot represent the full workspace population.
     const asksForAggregate =
-      /\\b(how many|count|number of|percentage|percent|%|what proportion)\\b/i.test(
+      /\b(how many|count|number of|percentage|percent|%|what proportion)\b/i.test(
         question,
       );
     const sentimentMatch = question.match(
-      /\\b(negative|positive|neutral)\\b/i,
+      /\b(negative|positive|neutral)\b/i,
     );
 
     if (asksForAggregate) {
