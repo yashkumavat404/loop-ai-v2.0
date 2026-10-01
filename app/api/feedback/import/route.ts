@@ -38,54 +38,91 @@ type ImportResult = {
   imported: number;
   skipped: number;
   fallbackClassified: boolean;
+  error?: string;
 };
 
 function normalizeChannel(value: string) {
-  const normalized = value.trim().toUpperCase().replace(/[-\s]+/g, "_");
+  const normalized = value
+    .trim()
+    .toUpperCase()
+    .replace(/[\s-]+/g, "_")
+    .replace(/^["']|["']$/g, "");
 
   const aliases: Record<string, ImportedFeedback["channel"]> = {
+    WEB: "WEB",
     WEBSITE: "WEB",
     SITE: "WEB",
-    "E_MAIL": "EMAIL",
-    "CUSTOMER_SUPPORT": "SUPPORT",
-    "HELP_DESK": "SUPPORT",
-    APPSTORE: "APP_STORE",
-    "APP_STORE": "APP_STORE",
-    PLAY_STORE: "APP_STORE",
-    FORM: "SURVEY",
-    QUESTIONNAIRE: "SURVEY",
+    ONLINE: "WEB",
+    CSV: "CSV",
     FILE: "CSV",
     UPLOAD: "CSV",
+    EMAIL: "EMAIL",
+    E_MAIL: "EMAIL",
+    MAIL: "EMAIL",
+    SUPPORT: "SUPPORT",
+    CUSTOMER_SUPPORT: "SUPPORT",
+    HELP_DESK: "SUPPORT",
+    APP: "APP_STORE",
+    APPSTORE: "APP_STORE",
+    APP_STORE: "APP_STORE",
+    MOBILE_APP: "APP_STORE",
+    PLAY_STORE: "APP_STORE",
+    SURVEY: "SURVEY",
+    FORM: "SURVEY",
+    QUESTIONNAIRE: "SURVEY",
   };
 
   return aliases[normalized] ?? normalized;
 }
 
-function parseCsvLine(line: string): string[] {
-  const values: string[] = [];
+function parseCsvRecords(text: string): string[][] {
+  const records: string[][] = [];
+  let record: string[] = [];
   let current = "";
   let insideQuotes = false;
 
-  for (let i = 0; i < line.length; i += 1) {
-    const character = line[i];
+  for (let i = 0; i < text.length; i += 1) {
+    const character = text[i];
 
     if (character === '"') {
-      if (insideQuotes && line[i + 1] === '"') {
+      if (insideQuotes && text[i + 1] === '"') {
         current += '"';
         i += 1;
       } else {
         insideQuotes = !insideQuotes;
       }
-    } else if (character === "," && !insideQuotes) {
-      values.push(current.trim());
-      current = "";
-    } else {
-      current += character;
+      continue;
     }
+
+    if (character === "," && !insideQuotes) {
+      record.push(current.trim());
+      current = "";
+      continue;
+    }
+
+    if ((character === "\n" || character === "\r") && !insideQuotes) {
+      if (character === "\r" && text[i + 1] === "\n") i += 1;
+      record.push(current.trim());
+      current = "";
+
+      if (record.some((value) => value.length > 0)) {
+        records.push(record);
+      }
+
+      record = [];
+      continue;
+    }
+
+    current += character;
   }
 
-  values.push(current.trim());
-  return values;
+  record.push(current.trim());
+
+  if (record.some((value) => value.length > 0)) {
+    records.push(record);
+  }
+
+  return records;
 }
 
 function fallbackClassification(content: string): FeedbackClassification {
@@ -256,7 +293,12 @@ async function runWithConcurrency<T>(
         results[index] = await worker(items[index]);
       } catch (error) {
         console.error("CSV row import failed:", error);
-        results[index] = { imported: 0, skipped: 0, fallbackClassified: false };
+        results[index] = {
+          imported: 0,
+          skipped: 0,
+          fallbackClassified: false,
+          error: error instanceof Error ? error.message : "Row processing failed",
+        };
       }
     }
   }
@@ -287,20 +329,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Only CSV files are supported" }, { status: 400 });
     }
 
-    const text = await uploadedFile.text();
-    const lines = text
-      .replace(/^\uFEFF/, "")
-      .split(/\r?\n/)
-      .filter((line) => line.trim().length > 0);
+    const text = (await uploadedFile.text()).replace(/^\uFEFF/, "");
+    const records = parseCsvRecords(text);
 
-    if (lines.length < 2) {
+    if (records.length < 2) {
       return NextResponse.json(
         { error: "CSV must contain a header and at least one data row" },
         { status: 400 },
       );
     }
 
-    const headers = parseCsvLine(lines[0]).map((header) =>
+    const headers = records[0].map((header) =>
       header.trim().toLowerCase(),
     );
 
@@ -325,9 +364,9 @@ export async function POST(request: Request) {
     const imported: ImportedFeedback[] = [];
     const failures: Array<{ row: number; error: string }> = [];
 
-    for (let index = 1; index < lines.length; index += 1) {
+    for (let index = 1; index < records.length; index += 1) {
       const rowNumber = index + 1;
-      const values = parseCsvLine(lines[index]);
+      const values = records[index];
 
       const rawRow = Object.fromEntries(
         headers.map((header, headerIndex) => [
@@ -378,13 +417,31 @@ export async function POST(request: Request) {
       (result) => result.fallbackClassified,
     ).length;
 
+    const processingFailures = results
+      .map((result, index) =>
+        result.error
+          ? {
+              row: index + 2,
+              error: result.error,
+            }
+          : null,
+      )
+      .filter(
+        (failure): failure is { row: number; error: string } =>
+          failure !== null,
+      );
+
+    const allFailures = [...failures, ...processingFailures].sort(
+      (a, b) => a.row - b.row,
+    );
+
     return NextResponse.json({
       data: {
         imported: importedCount,
         skipped: skippedCount,
-        failed: failures.length,
+        failed: allFailures.length,
         fallbackClassified: fallbackCount,
-        failures,
+        failures: allFailures,
       },
     });
   } catch (error) {
