@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, FileSpreadsheet, Upload, XCircle } from "lucide-react";
 
@@ -11,13 +11,30 @@ export default function ImportPage() {
   const [message, setMessage] = useState("");
   const [failures, setFailures] = useState<ImportFailure[]>([]);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   function handleFile(event: ChangeEvent<HTMLInputElement>) {
     const selectedFile = event.target.files?.[0] || null;
     setFile(selectedFile);
     setMessage("");
     setFailures([]);
+    setProgress(0);
   }
+
+  useEffect(() => {
+    if (!loading) return;
+
+    setProgress((value) => (value > 0 ? value : 1));
+    const timer = window.setInterval(() => {
+      setProgress((value) => {
+        if (value >= 99) return 99;
+        if (value < 80) return value + 2;
+        return value + 1;
+      });
+    }, 180);
+
+    return () => window.clearInterval(timer);
+  }, [loading]);
 
   async function upload() {
     if (!file) {
@@ -26,6 +43,7 @@ export default function ImportPage() {
       return;
     }
     setLoading(true);
+    setProgress(1);
     setMessage("");
     setFailures([]);
 
@@ -41,6 +59,7 @@ export default function ImportPage() {
       const skipped = result.data.skipped ?? 0;
       setMessage(`Import completed: ${imported} record${imported === 1 ? "" : "s"} imported, ${skipped} duplicate${skipped === 1 ? "" : "s"} skipped, ${failed} failed${fallbackClassified ? `, ${fallbackClassified} processed with resilient AI fallback` : ""}.`);
       setFailures(result.data.failures ?? []);
+      setProgress(100);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "CSV import failed.");
       setFailures([]);
@@ -123,10 +142,28 @@ export default function ImportPage() {
             </div>
           )}
 
+          {loading && (
+            <div className="mt-5 rounded-xl border border-[#dfe7f2] bg-[#f8fafc] p-4 dark:border-[#2b394b] dark:bg-[#151e2a]">
+              <div className="mb-2 flex items-center justify-between text-xs font-semibold text-[#53657b] dark:text-[#aebacc]">
+                <span>Processing feedback records</span>
+                <span className="text-[#2f6fed] dark:text-[#76a9ff]">{progress}%</span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-[#e7edf5] dark:bg-[#273447]">
+                <div
+                  className="h-full rounded-full bg-[#2f6fed] transition-[width] duration-200 ease-out dark:bg-[#76a9ff]"
+                  style={{ width: progress + "%" }}
+                />
+              </div>
+              <p className="mt-2 text-[11px] text-[#8491a3] dark:text-[#8d9aad]">
+                Validating rows, classifying feedback, assigning themes, and preparing semantic search data.
+              </p>
+            </div>
+          )}
+
           <div className="mt-6 flex flex-col gap-3 border-t border-[#edf1f5] pt-5 dark:border-[#273447] sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-[#8491a3] dark:text-[#8d9aad]">Valid rows will be added to your workspace.</p>
             <button type="button" className="btn-primary gap-2" onClick={upload} disabled={loading}>
-              <Upload size={16} /> {loading ? "Importing..." : "Import CSV"}
+              <Upload size={16} /> {loading ? "Importing " + progress + "%..." : "Import CSV"}
             </button>
           </div>
         </div>
