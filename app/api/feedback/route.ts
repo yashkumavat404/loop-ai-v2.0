@@ -4,6 +4,8 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { classifyFeedback } from "@/lib/ai";
 import { getAuthenticatedUser, requireRole } from "@/lib/auth-helpers";
+import { createFeedbackEmbedding } from "@/lib/ai/embedding-store";
+import { resolveWorkspaceThemes } from "@/lib/ai/theme-store";
 
 const createFeedbackSchema = z.object({
   content: z.string().trim().min(1).max(10000),
@@ -258,18 +260,10 @@ export async function POST(request: Request) {
       user.workspaceId,
     );
 
-    const existingThemes = await db.theme.findMany({
-      where: {
-        workspaceId: user.workspaceId,
-        name: {
-          in: classification.themes,
-        },
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-    });
+    const existingThemes = await resolveWorkspaceThemes(
+      user.workspaceId,
+      classification.themes,
+    );
 
     const feedback = await db.feedback.create({
       data: {
@@ -298,6 +292,18 @@ export async function POST(request: Request) {
         },
       },
     });
+
+    try {
+      await createFeedbackEmbedding(
+        feedback.id,
+        feedback.content,
+      );
+    } catch (error) {
+      console.error(
+        "Manual feedback embedding failed; feedback retained:",
+        error,
+      );
+    }
 
     return NextResponse.json(
       {
