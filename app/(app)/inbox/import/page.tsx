@@ -38,7 +38,8 @@ export default function ImportPage() {
       const imported = result.data.imported;
       const failed = result.data.failed;
       const fallbackClassified = result.data.fallbackClassified ?? 0;
-      setMessage(`Import completed: ${imported} record${imported === 1 ? "" : "s"} imported, ${failed} failed${fallbackClassified ? `, ${fallbackClassified} processed with resilient AI fallback` : ""}.`);
+      const skipped = result.data.skipped ?? 0;
+      setMessage(`Import completed: ${imported} record${imported === 1 ? "" : "s"} imported, ${skipped} duplicate${skipped === 1 ? "" : "s"} skipped, ${failed} failed${fallbackClassified ? `, ${fallbackClassified} processed with resilient AI fallback` : ""}.`);
       setFailures(result.data.failures ?? []);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "CSV import failed.");
