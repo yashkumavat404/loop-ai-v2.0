@@ -3,6 +3,7 @@ import { z } from "zod";
 import { GoogleGenAI } from "@google/genai";
 
 import { getAuthenticatedUser } from "@/lib/auth-helpers";
+import { db } from "@/lib/db";
 import { searchRelevantFeedback } from "@/lib/ai/search";
 
 const requestSchema = z.object({
@@ -81,6 +82,94 @@ export async function POST(request: Request) {
       isTodayQuestion ? todayStartDate : undefined,
       isTodayQuestion ? todayEndDate : undefined,
     );
+
+    // Deterministic analytics path for count/percentage questions.
+    // Semantic retrieval is intentionally not used for exact aggregates because
+    // top-K retrieval cannot represent the full workspace population.
+    const asksForAggregate =
+      /\\b(how many|count|number of|percentage|percent|%|what proportion)\\b/i.test(
+        question,
+      );
+    const sentimentMatch = question.match(
+      /\\b(negative|positive|neutral)\\b/i,
+    );
+
+    if (asksForAggregate) {
+      const requestedSentiment = sentimentMatch?.[1]?.toUpperCase() as
+        | "NEGATIVE"
+        | "POSITIVE"
+        | "NEUTRAL"
+        | undefined;
+
+      const baseWhere = {
+        workspaceId: user.workspaceId,
+        ...(isTodayQuestion
+          ? {
+              createdAt: {
+                gte: todayStartDate,
+                lt: todayEndDate,
+              },
+            }
+          : {}),
+      };
+
+      const [totalCount, matchingCount, sourceRows] = await Promise.all([
+        db.feedback.count({ where: baseWhere }),
+        requestedSentiment
+          ? db.feedback.count({
+              where: {
+                ...baseWhere,
+                sentiment: requestedSentiment,
+              },
+            })
+          : db.feedback.count({ where: baseWhere }),
+        db.feedback.findMany({
+          where: {
+            ...baseWhere,
+            ...(requestedSentiment
+              ? { sentiment: requestedSentiment }
+              : {}),
+          },
+          orderBy: { createdAt: "desc" },
+          take: 8,
+          select: {
+            id: true,
+            content: true,
+            channel: true,
+            sentiment: true,
+            createdAt: true,
+          },
+        }),
+      ]);
+
+      const percentage =
+        totalCount === 0
+          ? 0
+          : Math.round((matchingCount / totalCount) * 1000) / 10;
+
+      const scopeLabel = isTodayQuestion
+        ? ` recorded today as of ${currentLocalTime}`
+        : " in your workspace";
+
+      const label = requestedSentiment
+        ? requestedSentiment.toLowerCase()
+        : "all";
+
+      const answer = requestedSentiment
+        ? `There are ${matchingCount} ${label} feedback entries out of ${totalCount} total${scopeLabel} (${percentage}%).`
+        : `There are ${totalCount} feedback entries${scopeLabel}.`;
+
+      return NextResponse.json({
+        answer,
+        sources: sourceRows.map((item) => ({
+          id: item.id,
+          text: item.content,
+          channel: item.channel,
+          sentiment: item.sentiment,
+          createdAt: item.createdAt,
+        })),
+      });
+    }
 
     if (!results.length) {
       return NextResponse.json({
