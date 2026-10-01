@@ -150,6 +150,65 @@ export async function POST(request: Request) {
       );
     }
 
+    const periodDurationMs =
+      periodEnd.getTime() - periodStart.getTime() + 1;
+
+    const previousPeriodEnd = new Date(
+      periodStart.getTime() - 1,
+    );
+    const previousPeriodStart = new Date(
+      previousPeriodEnd.getTime() - periodDurationMs + 1,
+    );
+
+    const previousFeedback = await db.feedback.findMany({
+      where: {
+        workspaceId: user.workspaceId,
+        createdAt: {
+          gte: previousPeriodStart,
+          lte: previousPeriodEnd,
+        },
+      },
+      select: {
+        sentiment: true,
+      },
+    });
+
+    const previousSentimentCounts = {
+      POSITIVE: 0,
+      NEUTRAL: 0,
+      NEGATIVE: 0,
+    };
+
+    for (const item of previousFeedback) {
+      if (item.sentiment) {
+        previousSentimentCounts[item.sentiment]++;
+      }
+    }
+
+    const sentimentShifts = (
+      ["POSITIVE", "NEUTRAL", "NEGATIVE"] as const
+    ).map((sentiment) => {
+      const currentPercent =
+        feedback.length === 0
+          ? 0
+          : (sentimentCounts[sentiment] / feedback.length) * 100;
+
+      const previousPercent =
+        previousFeedback.length === 0
+          ? 0
+          : (previousSentimentCounts[sentiment] / previousFeedback.length) * 100;
+
+      const change = currentPercent - previousPercent;
+
+      return {
+        sentiment,
+        change:
+          previousFeedback.length === 0
+            ? `Current period: ${currentPercent.toFixed(1)}%. No previous-period baseline was available.`
+            : `Current: ${currentPercent.toFixed(1)}%; previous: ${previousPercent.toFixed(1)}%; change: ${change >= 0 ? "+" : ""}${change.toFixed(1)} percentage points.`,
+      };
+    });
+
     const themeCounts = new Map<string, number>();
 
     for (const item of feedback) {
@@ -196,6 +255,11 @@ export async function POST(request: Request) {
       periodEnd: periodEnd.toISOString(),
       totalFeedback: feedback.length,
       sentimentCounts,
+      previousPeriodStart: previousPeriodStart.toISOString(),
+      previousPeriodEnd: previousPeriodEnd.toISOString(),
+      previousTotalFeedback: previousFeedback.length,
+      previousSentimentCounts,
+      sentimentShifts,
       topThemes,
       quotes,
     };
@@ -228,7 +292,7 @@ ${JSON.stringify(context, null, 2)}
 Generate:
 - A concise executive summary.
 - The supplied top themes.
-- Sentiment shifts based only on the supplied sentiment data.
+- Use the supplied sentimentShifts exactly. Do not invent or recalculate sentiment changes.
 - Select useful quotes only from the supplied quotes.
 - Practical recommended actions grounded in the supplied feedback.
 
