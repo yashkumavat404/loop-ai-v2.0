@@ -12,29 +12,25 @@ export async function resolveWorkspaceThemes(
     ),
   ).slice(0, 5);
 
-  const resolved = [];
-
-  for (const name of normalizedNames) {
-    const theme = await db.theme.upsert({
-      where: {
-        workspaceId_name: {
+  return Promise.all(
+    normalizedNames.map((name) =>
+      db.theme.upsert({
+        where: {
+          workspaceId_name: {
+            workspaceId,
+            name,
+          },
+        },
+        update: {},
+        create: {
           workspaceId,
           name,
         },
-      },
-      update: {},
-      create: {
-        workspaceId,
-        name,
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-    });
-
-    resolved.push(theme);
-  }
-
-  return resolved;
+        select: {
+          id: true,
+          name: true,
+        },
+      }),
+    ),
+  );
 }
