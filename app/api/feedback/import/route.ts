@@ -273,7 +273,7 @@ async function processRow(
 async function runWithConcurrency<T>(
   items: T[],
   worker: (item: T) => Promise<ImportResult>,
-  concurrency = 3,
+  concurrency = 8,
 ) {
   const results: ImportResult[] = [];
   let cursor = 0;
@@ -397,7 +397,7 @@ export async function POST(request: Request) {
     const results = await runWithConcurrency(
       imported,
       (item) => processRow(item, user.workspaceId),
-      3,
+      8,
     );
 
     const importedCount = results.reduce(
