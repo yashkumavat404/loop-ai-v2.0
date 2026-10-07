@@ -6,6 +6,7 @@ import {
   BarChart3,
   CalendarDays,
   MessageCircle,
+  RefreshCw,
   MessageSquare,
   Smile,
   Sparkles,
@@ -143,59 +144,63 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  const loadDashboard = async () => {
+    setRefreshing(true);
+    setError("");
+
+    const requests = await Promise.allSettled([
+      api.getDashboardStats(),
+      api.getVolumeTrend(),
+      api.getSentimentTrend(),
+      api.getTopThemes(),
+      api.getFeedback(new URLSearchParams({ page: "1", pageSize: "5" })),
+    ]);
+
+    const errors: string[] = [];
+
+    if (requests[0].status === "fulfilled") {
+      setStats(requests[0].value);
+    } else {
+      errors.push("summary");
+    }
+
+    if (requests[1].status === "fulfilled") {
+      setVolume(requests[1].value);
+    } else {
+      errors.push("volume");
+    }
+
+    if (requests[2].status === "fulfilled") {
+      setSentiment(requests[2].value as unknown as SentimentPoint[]);
+    } else {
+      errors.push("sentiment");
+    }
+
+    if (requests[3].status === "fulfilled") {
+      setThemes(requests[3].value);
+    } else {
+      errors.push("themes");
+    }
+
+    if (requests[4].status === "fulfilled") {
+      setRecent(requests[4].value.items);
+    } else {
+      errors.push("recent feedback");
+    }
+
+    if (errors.length) {
+      setError(`Some dashboard data could not be loaded: ${errors.join(", ")}. Click Refresh to try again.`);
+    }
+
+    setLastUpdated(new Date());
+    setRefreshing(false);
+  };
+
   useEffect(() => {
-    let active = true;
-    let firstLoad = true;
-
-    const loadDashboard = async () => {
-      if (firstLoad) {
-        setLoading(true);
-      }
-
-      try {
-        const params = new URLSearchParams({
-          page: "1",
-          pageSize: "5",
-        });
-
-        const [dashboardStats, volumeData, sentimentData, themeData, feedback] =
-          await Promise.all([
-            api.getDashboardStats(),
-            api.getVolumeTrend(),
-            api.getSentimentTrend(),
-            api.getTopThemes(),
-            api.getFeedback(params),
-          ]);
-
-        if (!active) return;
-
-        setStats(dashboardStats);
-        setVolume(volumeData);
-        setSentiment(sentimentData as unknown as SentimentPoint[]);
-        setThemes(themeData);
-        setRecent(feedback.items);
-        setError("");
-      } catch (err) {
-        if (!active) return;
-
-        console.error("Failed to load dashboard:", err);
-        setError(err instanceof Error ? err.message : "Failed to load dashboard");
-      } finally {
-        if (active && firstLoad) {
-          setLoading(false);
-          firstLoad = false;
-        }
-      }
-    };
-
-    loadDashboard();
-
-    const refreshTimer = window.setInterval(loadDashboard, 5000);
-
-    return () => {
-      active = false;
-      window.clearInterval(refreshTimer);
-    };
+    void loadDashboard();
   }, []);
 
   const today = useMemo(
@@ -229,7 +234,24 @@ export default function DashboardPage() {
             Last 30 days
             <span className="text-[#b0bac7]">•</span>
             {today}
+            {lastUpdated && (
+              <>
+                <span className="text-[#b0bac7]">•</span>
+                Updated {lastUpdated.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+              </>
+            )}
           </div>
+
+          <button
+            type="button"
+            onClick={() => void loadDashboard()}
+            disabled={refreshing}
+            className="flex items-center gap-2 rounded-xl border border-[#e2e9f1] bg-white px-3.5 py-2.5 text-xs font-bold text-[#53647a] shadow-sm transition hover:border-[#cfdbea] hover:bg-[#f8fafc] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#2b394b] dark:bg-[#111923] dark:text-[#b3bfd0] dark:hover:border-[#3a4b61] dark:hover:bg-[#151f2c]"
+            aria-label="Refresh dashboard"
+          >
+            <RefreshCw size={15} className={refreshing ? "animate-spin" : ""} />
+            {refreshing ? "Refreshing..." : "Refresh"}
+          </button>
 
           <a
             href="/ask"
