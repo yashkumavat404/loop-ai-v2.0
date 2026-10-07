@@ -61,11 +61,20 @@ export async function POST(request: Request) {
     const todayEndDate = new Date(todayEnd);
 
     let currentLocalTime: string;
+    let currentLocalDate: string;
 
     try {
-      currentLocalTime = new Intl.DateTimeFormat("en-IN", {
+      const formatter = new Intl.DateTimeFormat("en-IN", {
         dateStyle: "full",
         timeStyle: "long",
+        timeZone: clientTimeZone,
+      });
+
+      currentLocalTime = formatter.format(now);
+      currentLocalDate = new Intl.DateTimeFormat("en-IN", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
         timeZone: clientTimeZone,
       }).format(now);
     } catch {
@@ -119,6 +128,65 @@ export async function POST(request: Request) {
             ? `I found 1 feedback entry from ${customerFeedback[0].customerLabel ?? customerName}.`
             : `I found ${customerFeedback.length} feedback entries from customers matching "${customerName}".`,
         sources: customerFeedback.map((item) => ({
+          id: item.id,
+          text: item.content,
+          channel: item.channel,
+          sentiment: item.sentiment,
+          createdAt: item.createdAt,
+        })),
+      });
+    }
+
+    // Exact "today's feedback" questions should return the actual
+    // workspace feedback recorded within the user's local calendar day.
+    // This must use the complete dataset, not semantic top-K retrieval.
+    const asksForTodayFeedback =
+      isTodayQuestion &&
+      /\b(feedback|feedbacks|entries|comments|responses|records)\b/i.test(
+        question,
+      ) &&
+      !/\b(how many|count|number of|percentage|percent|%|what proportion)\b/i.test(
+        question,
+      );
+
+    if (asksForTodayFeedback) {
+      const todayFeedback = await db.feedback.findMany({
+        where: {
+          workspaceId: user.workspaceId,
+          createdAt: {
+            gte: todayStartDate,
+            lt: todayEndDate,
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 8,
+        select: {
+          id: true,
+          content: true,
+          channel: true,
+          sentiment: true,
+          createdAt: true,
+          customerLabel: true,
+        },
+      });
+
+      if (!todayFeedback.length) {
+        return NextResponse.json({
+          answer: `There is no feedback available for ${currentLocalDate} in your workspace.`,
+          sources: [],
+        });
+      }
+
+      const countLabel =
+        todayFeedback.length === 1
+          ? "1 feedback entry"
+          : `${todayFeedback.length} feedback entries`;
+
+      return NextResponse.json({
+        answer: `I found ${countLabel} recorded on ${currentLocalDate} in your workspace.`,
+        sources: todayFeedback.map((item) => ({
           id: item.id,
           text: item.content,
           channel: item.channel,
@@ -227,9 +295,7 @@ export async function POST(request: Request) {
     if (!results.length) {
       return NextResponse.json({
         answer: isTodayQuestion
-          ? "I could not find any feedback recorded today as of " +
-            currentLocalTime +
-            "."
+          ? `I could not find any feedback recorded on ${currentLocalDate} in your workspace.`
           : "I could not find enough relevant feedback in your workspace to answer this question.",
         sources: [],
       });
