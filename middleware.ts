@@ -14,7 +14,7 @@ export default auth((request) => {
     pathname === "/login" ||
     pathname === "/signup" ||
     pathname.startsWith("/api/auth") ||
-    pathname === "/api/signup";
+    pathname.startsWith("/api/signup");
 
   if (!isAuthenticated && !isPublicRoute) {
     const loginUrl = new URL("/login", request.url);
