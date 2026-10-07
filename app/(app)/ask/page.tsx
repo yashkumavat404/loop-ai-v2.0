@@ -36,23 +36,73 @@ export default function AskPage() {
 
     try {
       const now = new Date();
+      const timeZone =
+        Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+
+      const dateParts = new Intl.DateTimeFormat("en-CA", {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).formatToParts(now);
+
+      const getPart = (type: string) =>
+        dateParts.find((part) => part.type === type)?.value ?? "";
+
+      const year = Number(getPart("year"));
+      const month = Number(getPart("month"));
+      const day = Number(getPart("day"));
+
       const todayStart = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
+        Date.UTC(year, month - 1, day),
       );
-      const todayEnd = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() + 1,
+
+      const tomorrowUtcDate = new Date(
+        Date.UTC(year, month - 1, day + 1),
+      );
+
+      const getUtcOffsetMinutes = (value: Date) => {
+        const parts = new Intl.DateTimeFormat("en-US", {
+          timeZone,
+          timeZoneName: "longOffset",
+        }).formatToParts(value);
+
+        const offset = parts.find(
+          (part) => part.type === "timeZoneName",
+        )?.value;
+
+        if (!offset || offset === "GMT" || offset === "UTC") {
+          return 0;
+        }
+
+        const match = offset.match(
+          /^GMT([+-])(\d{2}):(\d{2})$/,
+        );
+
+        if (!match) return 0;
+
+        const sign = match[1] === "-" ? -1 : 1;
+        return (
+          sign *
+          (Number(match[2]) * 60 + Number(match[3]))
+        );
+      };
+
+      const startOffset = getUtcOffsetMinutes(todayStart);
+      const endOffset = getUtcOffsetMinutes(tomorrowUtcDate);
+
+      const todayStartUtc = new Date(
+        todayStart.getTime() - startOffset * 60_000,
+      );
+      const todayEndUtc = new Date(
+        tomorrowUtcDate.getTime() - endOffset * 60_000,
       );
 
       const result = await api.askLoop(trimmedQuestion, {
         clientNow: now.toISOString(),
-        clientTimeZone:
-          Intl.DateTimeFormat().resolvedOptions().timeZone,
-        todayStart: todayStart.toISOString(),
-        todayEnd: todayEnd.toISOString(),
+        clientTimeZone: timeZone,
+        todayStart: todayStartUtc.toISOString(),
+        todayEnd: todayEndUtc.toISOString(),
       });
 
       setAnswer(result);
@@ -286,9 +336,11 @@ export default function AskPage() {
                             </span>
 
                             <span>
-                              {new Date(
-                                source.createdAt,
-                              ).toLocaleDateString("en-IN")}
+                              {new Intl.DateTimeFormat("en-IN", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                              }).format(new Date(source.createdAt))}
                             </span>
 
                             {source.sentiment && (
