@@ -194,6 +194,7 @@ function fallbackClassification(content: string): FeedbackClassification {
     sentiment,
     sentimentScore,
     themes: [featureArea],
+    featureArea,
   };
 }
 
@@ -286,9 +287,6 @@ async function createEmbeddingSafely(content: string) {
     console.error("CSV embedding generation failed; feedback retained:", error);
     return null;
   }
-}
-allbackClassified,
-  };
 }
 
 async function runWithConcurrency<T>(
