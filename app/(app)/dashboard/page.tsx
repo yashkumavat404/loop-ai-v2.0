@@ -148,6 +148,9 @@ export default function DashboardPage() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const loadDashboard = async () => {
+    if (!lastUpdated) {
+      setLoading(true);
+    }
     setRefreshing(true);
     setError("");
 
@@ -196,6 +199,7 @@ export default function DashboardPage() {
     }
 
     setLastUpdated(new Date());
+    setLoading(false);
     setRefreshing(false);
   };
 
