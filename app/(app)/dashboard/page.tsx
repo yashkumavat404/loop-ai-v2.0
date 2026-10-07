@@ -144,9 +144,14 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    async function loadDashboard() {
-      setLoading(true);
-      setError("");
+    let active = true;
+    let firstLoad = true;
+
+    const loadDashboard = async () => {
+      if (firstLoad) {
+        setLoading(true);
+      }
+
       try {
         const params = new URLSearchParams({
           page: "1",
@@ -162,20 +167,35 @@ export default function DashboardPage() {
             api.getFeedback(params),
           ]);
 
+        if (!active) return;
+
         setStats(dashboardStats);
         setVolume(volumeData);
         setSentiment(sentimentData as unknown as SentimentPoint[]);
         setThemes(themeData);
         setRecent(feedback.items);
+        setError("");
       } catch (err) {
+        if (!active) return;
+
         console.error("Failed to load dashboard:", err);
         setError(err instanceof Error ? err.message : "Failed to load dashboard");
       } finally {
-        setLoading(false);
+        if (active && firstLoad) {
+          setLoading(false);
+          firstLoad = false;
+        }
       }
-    }
+    };
 
     loadDashboard();
+
+    const refreshTimer = window.setInterval(loadDashboard, 5000);
+
+    return () => {
+      active = false;
+      window.clearInterval(refreshTimer);
+    };
   }, []);
 
   const today = useMemo(
