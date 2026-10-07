@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { db } from "@/lib/db";
 import { classifyFeedback } from "@/lib/ai";
-import { createFeedbackEmbedding } from "@/lib/ai/embedding-store";
+import { generateFeedbackEmbedding, storeFeedbackEmbedding } from "@/lib/ai/embedding-store";
 import { getAuthenticatedUser, requireRole } from "@/lib/auth-helpers";
 import type { FeedbackClassification } from "@/lib/ai/schemas";
 import { resolveWorkspaceThemes } from "@/lib/ai/theme-store";
@@ -193,12 +193,7 @@ function fallbackClassification(content: string): FeedbackClassification {
   return {
     sentiment,
     sentimentScore,
-    themes: [featureArea],
-    featureArea,
-  };
-}
-
-async function processRow(
+    themes: [featureArea],async function processRow(
   item: ImportedFeedback,
   workspaceId: string,
 ): Promise<ImportResult> {
@@ -222,20 +217,28 @@ async function processRow(
     };
   }
 
-  let classification;
-  let fallbackClassified = false;
-
-  try {
-    classification = await classifyFeedback(item.content, workspaceId);
-  } catch (error) {
-    console.error("CSV AI classification failed; using fallback:", error);
-    classification = fallbackClassification(item.content);
-    fallbackClassified = true;
-  }
+  // Classification and embedding do not depend on each other.
+  // Run both AI operations at the same time to remove one full network
+  // round-trip from every imported row.
+  const [classificationResult, embeddingResult] = await Promise.all([
+    classifyFeedback(item.content, workspaceId)
+      .then((classification) => ({
+        classification,
+        fallbackClassified: false,
+      }))
+      .catch((error) => {
+        console.error("CSV AI classification failed; using fallback:", error);
+        return {
+          classification: fallbackClassification(item.content),
+          fallbackClassified: true,
+        };
+      }),
+    createEmbeddingSafely(item.content),
+  ]);
 
   const existingThemes = await resolveWorkspaceThemes(
     workspaceId,
-    classification.themes,
+    classificationResult.classification.themes,
   );
 
   const feedback = await db.feedback.create({
@@ -245,9 +248,9 @@ async function processRow(
       channel: item.channel,
       customerLabel: item.customerLabel,
       createdAt: item.createdAt,
-      sentiment: classification.sentiment,
-      sentimentScore: classification.sentimentScore,
-      featureArea: classification.featureArea,
+      sentiment: classificationResult.classification.sentiment,
+      sentimentScore: classificationResult.classification.sentimentScore,
+      featureArea: classificationResult.classification.featureArea,
       status: "NEW",
       themes: {
         create: existingThemes.map((theme) => ({
@@ -257,16 +260,30 @@ async function processRow(
     },
   });
 
-  try {
-    await createFeedbackEmbedding(feedback.id, feedback.content);
-  } catch (error) {
-    console.error("CSV embedding generation failed; feedback retained:", error);
+  if (embeddingResult) {
+    try {
+      await storeFeedbackEmbedding(feedback.id, embeddingResult);
+    } catch (error) {
+      console.error("CSV embedding storage failed; feedback retained:", error);
+    }
   }
 
   return {
     imported: 1,
     skipped: 0,
-    fallbackClassified,
+    fallbackClassified: classificationResult.fallbackClassified,
+  };
+}
+
+async function createEmbeddingSafely(content: string) {
+  try {
+    return await generateFeedbackEmbedding(content);
+  } catch (error) {
+    console.error("CSV embedding generation failed; feedback retained:", error);
+    return null;
+  }
+}
+allbackClassified,
   };
 }
 
