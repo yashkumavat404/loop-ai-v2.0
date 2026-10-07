@@ -25,6 +25,14 @@ function sentimentDot(value?: Feedback["sentiment"]) {
   return "bg-slate-400 dark:bg-slate-500";
 }
 
+function formatFeedbackDate(value: string) {
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(value));
+}
+
 export function FeedbackRow({ feedback }: { feedback: Feedback }) {
   const router = useRouter();
 
@@ -62,7 +70,7 @@ export function FeedbackRow({ feedback }: { feedback: Feedback }) {
             </div>
 
             <time className="text-[10px] font-medium text-[#8996a8] dark:text-[#8291a5]">
-              {new Date(feedback.createdAt).toLocaleDateString()}
+              {formatFeedbackDate(feedback.createdAt)}
             </time>
           </div>
 
