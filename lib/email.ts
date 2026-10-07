@@ -2,24 +2,32 @@ export async function sendSignupOtpEmail(
   email: string,
   otp: string,
 ) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM_EMAIL || "LOOP <onboarding@resend.dev>";
+  const apiKey = process.env.BREVO_API_KEY;
+  const fromEmail = process.env.BREVO_FROM_EMAIL;
 
   if (!apiKey) {
-    throw new Error("RESEND_API_KEY is not configured");
+    throw new Error("BREVO_API_KEY is not configured");
   }
 
-  const response = await fetch("https://api.resend.com/emails", {
+  if (!fromEmail) {
+    throw new Error("BREVO_FROM_EMAIL is not configured");
+  }
+
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      accept: "application/json",
+      "api-key": apiKey,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from,
-      to: [email],
+      sender: {
+        name: "LOOP",
+        email: fromEmail,
+      },
+      to: [{ email }],
       subject: "Your LOOP verification code",
-      html: `
+      htmlContent: `
         <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:32px;color:#17263a">
           <h1 style="margin:0 0 8px;font-size:24px">Verify your LOOP account</h1>
           <p style="color:#64748b;line-height:1.6">Enter this 4-digit code to verify your email address and continue creating your workspace.</p>
@@ -30,12 +38,13 @@ export async function sendSignupOtpEmail(
           <p style="margin-top:28px;font-size:12px;color:#94a3b8">LOOP · AI-powered customer feedback intelligence</p>
         </div>
       `,
+      textContent: `Your LOOP verification code is ${otp}. This code expires in 10 minutes.`,
     }),
   });
 
   if (!response.ok) {
     const details = await response.text();
-    console.error("Resend email failed:", details);
+    console.error("Brevo email failed:", details);
     throw new Error("Unable to send verification email.");
   }
 }
