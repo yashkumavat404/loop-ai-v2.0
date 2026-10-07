@@ -193,7 +193,11 @@ function fallbackClassification(content: string): FeedbackClassification {
   return {
     sentiment,
     sentimentScore,
-    themes: [featureArea],async function processRow(
+    themes: [featureArea],
+  };
+}
+
+async function processRow(
   item: ImportedFeedback,
   workspaceId: string,
 ): Promise<ImportResult> {
