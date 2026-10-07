@@ -29,6 +29,16 @@ const getGeminiClient = () => {
   return new GoogleGenAI({ apiKey });
 };
 
+const getSentimentFromQuestion = (question: string) => {
+  const match = question.match(/\b(negative|positive|neutral)\b/i);
+
+  return match?.[1]?.toUpperCase() as
+    | "NEGATIVE"
+    | "POSITIVE"
+    | "NEUTRAL"
+    | undefined;
+};
+
 export async function POST(request: Request) {
   try {
     const user = await getAuthenticatedUser();
@@ -64,13 +74,12 @@ export async function POST(request: Request) {
     let currentLocalDate: string;
 
     try {
-      const formatter = new Intl.DateTimeFormat("en-IN", {
+      currentLocalTime = new Intl.DateTimeFormat("en-IN", {
         dateStyle: "full",
         timeStyle: "long",
         timeZone: clientTimeZone,
-      });
+      }).format(now);
 
-      currentLocalTime = formatter.format(now);
       currentLocalDate = new Intl.DateTimeFormat("en-IN", {
         day: "numeric",
         month: "long",
@@ -84,11 +93,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // Direct customer lookups must search the customer label in PostgreSQL.
-    // Customer names are metadata and are not part of the feedback-content
-    // embedding, so semantic retrieval alone cannot reliably answer these.
     const customerMatch =
-      question.match(/\b(?:from|by|customer(?: named)?)[\s:]+([a-zA-Z][a-zA-Z0-9 .'-]{0,80}?)(?:\?|$)/i);
+      question.match(
+        /\b(?:from|by|customer(?: named)?)[\s:]+([a-zA-Z][a-zA-Z0-9 .'-]{0,80}?)(?:\?|$)/i,
+      );
 
     if (customerMatch) {
       const customerName = customerMatch[1].trim();
@@ -101,9 +109,10 @@ export async function POST(request: Request) {
             mode: "insensitive",
           },
         },
-        orderBy: {
-          createdAt: "desc",
-        },
+        orderBy: [
+          { createdAt: "desc" },
+          { id: "desc" },
+        ],
         take: 8,
         select: {
           id: true,
@@ -137,14 +146,78 @@ export async function POST(request: Request) {
       });
     }
 
-    // Exact "today's feedback" questions should return the actual
-    // workspace feedback recorded within the user's local calendar day.
-    // This must use the complete dataset, not semantic top-K retrieval.
-    const asksForTodayFeedback =
-      isTodayQuestion &&
+    const sentiment = getSentimentFromQuestion(question);
+    const asksForLatest =
+      /\b(last|latest|most recent|recent|newest)\b/i.test(question);
+    const asksForFeedback =
       /\b(feedback|feedbacks|entries|comments|responses|records)\b/i.test(
         question,
-      ) &&
+      );
+
+    // "Last/latest N [negative|positive|neutral] feedback" is a recency
+    // query, not a semantic query. Read the full workspace dataset ordered
+    // by the actual Feedback.updatedAt field so one item on a date naturally
+    // rolls back to the previous feedback date until N records are collected.
+    const latestSentimentMatch = question.match(
+      /\b(?:last|latest|most recent|recent|newest)\s+(\d+)\s+(?:[a-z]+\s+)*(negative|positive|neutral)\s+(?:feedback|feedbacks|entries|comments|responses|records)\b/i,
+    );
+
+    if (
+      asksForLatest &&
+      asksForFeedback &&
+      sentiment
+    ) {
+      const requestedCount = latestSentimentMatch
+        ? Math.min(Math.max(Number(latestSentimentMatch[1]), 1), 20)
+        : 7;
+
+      const latestFeedback = await db.feedback.findMany({
+        where: {
+          workspaceId: user.workspaceId,
+          sentiment,
+        },
+        orderBy: [
+          { updatedAt: "desc" },
+          { createdAt: "desc" },
+          { id: "desc" },
+        ],
+        take: requestedCount,
+        select: {
+          id: true,
+          content: true,
+          channel: true,
+          sentiment: true,
+          createdAt: true,
+          updatedAt: true,
+          customerLabel: true,
+        },
+      });
+
+      if (!latestFeedback.length) {
+        return NextResponse.json({
+          answer: `I could not find any ${sentiment.toLowerCase()} feedback in your workspace.`,
+          sources: [],
+        });
+      }
+
+      const returnedCount = latestFeedback.length;
+      const label = sentiment.toLowerCase();
+
+      return NextResponse.json({
+        answer: `Here are the ${returnedCount} most recently updated ${label} feedback entries, ordered from newest updated to oldest updated.`,
+        sources: latestFeedback.map((item) => ({
+          id: item.id,
+          text: item.content,
+          channel: item.channel,
+          sentiment: item.sentiment,
+          createdAt: item.createdAt,
+        })),
+      });
+    }
+
+    const asksForTodayFeedback =
+      isTodayQuestion &&
+      asksForFeedback &&
       !/\b(how many|count|number of|percentage|percent|%|what proportion)\b/i.test(
         question,
       );
@@ -158,9 +231,10 @@ export async function POST(request: Request) {
             lt: todayEndDate,
           },
         },
-        orderBy: {
-          createdAt: "desc",
-        },
+        orderBy: [
+          { createdAt: "desc" },
+          { id: "desc" },
+        ],
         take: 8,
         select: {
           id: true,
@@ -196,23 +270,13 @@ export async function POST(request: Request) {
       });
     }
 
-    // Exact analytics must use the full workspace dataset.
-    // Do this before semantic retrieval so embedding availability cannot
-    // affect deterministic counts or percentages.
     const asksForAggregate =
       /\b(how many|count|number of|percentage|percent|%|what proportion)\b/i.test(
         question,
       );
-    const sentimentMatch = question.match(
-      /\b(negative|positive|neutral)\b/i,
-    );
 
     if (asksForAggregate) {
-      const requestedSentiment = sentimentMatch?.[1]?.toUpperCase() as
-        | "NEGATIVE"
-        | "POSITIVE"
-        | "NEUTRAL"
-        | undefined;
+      const requestedSentiment = sentiment;
 
       const baseWhere = {
         workspaceId: user.workspaceId,
@@ -243,7 +307,10 @@ export async function POST(request: Request) {
               ? { sentiment: requestedSentiment }
               : {}),
           },
-          orderBy: { createdAt: "desc" },
+          orderBy: [
+            { createdAt: "desc" },
+            { id: "desc" },
+          ],
           take: 8,
           select: {
             id: true,
