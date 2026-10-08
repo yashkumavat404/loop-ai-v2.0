@@ -86,6 +86,12 @@ const generateClassification = async (
           ? error.status
           : undefined;
 
+      console.error("Gemini classification attempt failed", {
+        attempt,
+        status,
+        message: error instanceof Error ? error.message : String(error),
+      });
+
       const retryable = status === 503 || status === 429;
 
       if (!retryable) {
