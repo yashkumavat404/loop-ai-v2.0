@@ -88,17 +88,18 @@ const generateClassification = async (
 
       const retryable = status === 503 || status === 429;
 
-      if (!retryable || attempt === maxAttempts) {
-        if (status === 503 || status === 429) {
-          throw new Error(
-            "AI service is temporarily unavailable. Please try again in a moment.",
-          );
-        }
-
+      if (!retryable) {
         throw error;
       }
 
-      await sleep(attempt * 1500);
+      // Give Gemini 5 seconds before every retry and before the final response.
+      await sleep(5000);
+
+      if (attempt === maxAttempts) {
+        throw new Error(
+          "AI service is temporarily unavailable. Please try again in a moment.",
+        );
+      }
     }
   }
 
